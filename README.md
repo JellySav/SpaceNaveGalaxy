@@ -14,6 +14,14 @@ Prototipo 2D de supervivencia espacial hecho con [libGDX](https://libgdx.com/). 
 - Los enemigos pueden soltar baterías; se pueden guardar hasta 3. Pulsa `R` para salir de la nave durante 4 segundos y recuperar una vida. Mientras el técnico trabaja, la nave no se mueve ni dispara, pero los enemigos y aliados siguen activos.
 - El récord solo se conserva mientras la aplicación permanece abierta.
 
+## Recorrido galáctico
+
+- Rondas 1-2: Cinturón de Vela. La misión comienza siguiendo una baliza de auxilio.
+- Rondas 3-4: Nebulosa de Ion. Aumentan los alienígenas y la velocidad de la zona.
+- Ronda 5 en adelante: Frontera de Khepri. Los aliens resisten más, aparecen en mayor número y dejan más baterías.
+
+Cada sector muestra un breve mensaje de historia, cambia el fondo y el color de las estrellas, y modifica la dificultad y el salvamento. Las mejoras del arma y del dron se integran con el avance de las rondas.
+
 ## Tecnología y ejecución
 
 - `core`: lógica, entidades y pantallas compartidas del juego.

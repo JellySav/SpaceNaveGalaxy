@@ -19,6 +19,8 @@ import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Rectangle;
 
 public class PantallaJuego implements Screen {
+    private static final int CANTIDAD_ESTRELLAS = 90;
+
     private final SpaceNavigation game;
     private final OrthographicCamera camera;
     private final SpriteBatch batch;
@@ -35,8 +37,11 @@ public class PantallaJuego implements Screen {
     private final ProgresionMejoras progresion = ProgresionMejoras.obtenerInstancia();
     private final ShapeRenderer shapeRenderer = new ShapeRenderer();
     private final Random random = new Random();
+    private final float[] estrellasX = new float[CANTIDAD_ESTRELLAS];
+    private final float[] estrellasY = new float[CANTIDAD_ESTRELLAS];
 
     private final int ronda;
+    private final SectorGalactico sector;
     private final int velXAsteroides;
     private final int velYAsteroides;
     private final int cantAsteroides;
@@ -45,6 +50,7 @@ public class PantallaJuego implements Screen {
     private ApoyoNave aliado;
     private TecnicoExtravehicular tecnico;
     private float tiempoMensajeMejora;
+    private float tiempoMensajeSector;
     private float tiempoReparacion;
     private String mensajeMejora = "";
 
@@ -52,10 +58,14 @@ public class PantallaJuego implements Screen {
                          int velXAsteroides, int velYAsteroides, int cantAsteroides) {
         this.game = game;
         this.ronda = ronda;
+        this.sector = SectorGalactico.desdeRonda(ronda);
         this.score = score;
         this.velXAsteroides = velXAsteroides;
         this.velYAsteroides = velYAsteroides;
         this.cantAsteroides = cantAsteroides;
+        if (sector.iniciaEnRonda(ronda)) {
+            tiempoMensajeSector = 6f;
+        }
 
         batch = game.getBatch();
         camera = new OrthographicCamera();
@@ -71,6 +81,7 @@ public class PantallaJuego implements Screen {
         naveHitSound = Gdx.audio.newSound(Gdx.files.internal("hurt.ogg"));
         bulletSound = Gdx.audio.newSound(Gdx.files.internal("pop-sound.mp3"));
 
+        crearCampoEstelar(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
         nave = new Nave4(Gdx.graphics.getWidth() / 2 - 22, 30, naveTexture,
                 naveHitSound, bulletTexture, bulletSound);
         nave.setVidas(vidas);
@@ -89,8 +100,8 @@ public class PantallaJuego implements Screen {
             float size = 20f + random.nextInt(10);
             float x = random.nextFloat() * Math.max(1f, anchoMundo - size * 2f);
             float y = 65f + random.nextFloat() * Math.max(1f, altoMundo - 65f - size * 2f);
-            float speedX = (velXAsteroides + random.nextInt(4)) * 42f;
-            float speedY = (velYAsteroides + random.nextInt(4)) * 42f;
+            float speedX = (velXAsteroides + random.nextInt(4)) * 42f * sector.getFactorDificultad();
+            float speedY = (velYAsteroides + random.nextInt(4)) * 42f * sector.getFactorDificultad();
             if (random.nextBoolean()) {
                 speedX = -speedX;
             }
@@ -102,12 +113,15 @@ public class PantallaJuego implements Screen {
                     .construir(asteroidTexture));
         }
 
-        int cantidadAliens = ronda < 2 ? 0 : Math.min(4, ronda - 1);
+        int cantidadAliens = ronda < 2 ? 0
+            : Math.min(6, ronda - 1 + sector.getAliensAdicionales());
         for (int i = 0; i < cantidadAliens; i++) {
             float x = random.nextFloat() * Math.max(1f, anchoMundo - 48f);
             float y = altoMundo * (0.55f + random.nextFloat() * 0.35f);
-            float velocidad = Math.min(190f, 85f + ronda * 14f);
-            int resistencia = Math.min(4, 1 + ronda / 2);
+                float velocidad = Math.min(240f,
+                    (85f + ronda * 14f) * sector.getFactorDificultad());
+                int resistencia = Math.min(6,
+                    1 + ronda / 2 + sector.getResistenciaAlienAdicional());
             enemigos.add(new EnemigoBuilder()
                     .tipo(EnemigoBuilder.Tipo.ALIEN)
                     .posicion(x, y)
@@ -128,6 +142,7 @@ public class PantallaJuego implements Screen {
         font.draw(batch, "PUNTOS " + score, Gdx.graphics.getWidth() - 155f, alto - 20f);
         font.draw(batch, "BATERIAS " + progresion.getBaterias() + "   R: REPARAR",
             18f, alto - 70f);
+        font.draw(batch, "SECTOR " + sector.getNombre().toUpperCase(), 18f, alto - 120f);
         if (tecnico != null) {
             font.draw(batch, "TECNICO EXTERIOR " + (int) Math.ceil(tiempoReparacion) + " s",
                 18f, alto - 95f);
@@ -147,18 +162,32 @@ public class PantallaJuego implements Screen {
             font.getData().setScale(1f);
             font.setColor(1f, 1f, 1f, 1f);
         }
+            if (tiempoMensajeSector > 0f) {
+                font.getData().setScale(1.5f);
+                font.setColor(0.55f, 0.9f, 1f, 1f);
+                font.draw(batch, "NUEVA ETAPA: " + sector.getNombre(),
+                    Gdx.graphics.getWidth() / 2f - 190f, Gdx.graphics.getHeight() * 0.64f);
+                font.getData().setScale(1f);
+                font.draw(batch, sector.getNarrativa(),
+                    Gdx.graphics.getWidth() / 2f - 300f, Gdx.graphics.getHeight() * 0.60f);
+                font.setColor(1f, 1f, 1f, 1f);
+            }
     }
 
     @Override
     public void render(float delta) {
         float frameDelta = Math.min(Math.max(delta, 0f), 0.05f);
+        tiempoMensajeSector = Math.max(0f, tiempoMensajeSector - frameDelta);
         boolean mejoraLista = progresion.puedeInstalarMejora();
         progresion.avanzarTiempo(frameDelta, ronda);
         notificarMejoraLista(mejoraLista);
         gestionarInstalacionMejora();
+        Gdx.gl.glClearColor(sector.getFondoRojo(), sector.getFondoVerde(),
+            sector.getFondoAzul(), 1f);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
         camera.update();
         batch.setProjectionMatrix(camera.combined);
+        dibujarCampoEstelar();
         batch.begin();
         dibujaEncabezado();
 
@@ -226,7 +255,9 @@ public class PantallaJuego implements Screen {
                             progresion.registrarAlienDerrotado();
                             notificarMejoraLista(mejoraLista);
                         }
-                        if (random.nextFloat() < (enemigo instanceof AlienEnemigo ? 0.55f : 0.12f)) {
+                        float probabilidadBateria = (enemigo instanceof AlienEnemigo ? 0.55f : 0.12f)
+                            + sector.getProbabilidadBateriaAdicional();
+                        if (random.nextFloat() < probabilidadBateria) {
                             Rectangle area = enemigo.getArea();
                             baterias.add(new BateriaEnergia(area.x + area.width / 2f,
                                     area.y + area.height / 2f, bulletTexture));
@@ -318,6 +349,24 @@ public class PantallaJuego implements Screen {
         tiempoMensajeMejora = 2.5f;
     }
 
+    private void crearCampoEstelar(float ancho, float alto) {
+        for (int i = 0; i < CANTIDAD_ESTRELLAS; i++) {
+            estrellasX[i] = random.nextFloat() * ancho;
+            estrellasY[i] = random.nextFloat() * alto;
+        }
+    }
+
+    private void dibujarCampoEstelar() {
+        shapeRenderer.setProjectionMatrix(camera.combined);
+        shapeRenderer.begin(ShapeRenderer.ShapeType.Point);
+        shapeRenderer.setColor(sector.getEstrellasRojo(), sector.getEstrellasVerde(),
+                sector.getEstrellasAzul(), 0.72f);
+        for (int i = 0; i < CANTIDAD_ESTRELLAS; i++) {
+            shapeRenderer.point(estrellasX[i], estrellasY[i], 0f);
+        }
+        shapeRenderer.end();
+    }
+
     private void actualizarEnemigos(float delta) {
         Iterator<Enemigo> iterator = enemigos.iterator();
         while (iterator.hasNext()) {
@@ -343,6 +392,7 @@ public class PantallaJuego implements Screen {
     public void resize(int width, int height) {
         camera.setToOrtho(false, width, height);
         camera.update();
+        crearCampoEstelar(width, height);
     }
 
     @Override
