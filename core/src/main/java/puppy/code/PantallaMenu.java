@@ -113,7 +113,7 @@ public class PantallaMenu implements Screen {
         drawCentered(batch, "Controles sencillos, reflejos y una nave que no se detiene.",
                 centerX, height * 0.74f, 1f, COLOR_APAGADO);
 
-        drawControlRow(batch, "FLECHAS", "Cada pulsacion cambia la velocidad de la nave.",
+        drawControlRow(batch, "FLECHAS", "Mantener pulsado mueve la nave en esa direccion.",
                 width * 0.25f, width * 0.43f, height * 0.61f);
         drawControlRow(batch, "ESPACIO", "Dispara hacia arriba; apunta y evita los asteroides.",
                 width * 0.25f, width * 0.43f, height * 0.52f);
@@ -125,8 +125,10 @@ public class PantallaMenu implements Screen {
                 width * 0.25f, height * 0.28f, 0.95f, COLOR_TEXTO);
         drawText(batch, "Al despejar la pantalla comienza otra ronda con mas asteroides y velocidad.",
                 width * 0.25f, height * 0.23f, 0.95f, COLOR_TEXTO);
-        drawText(batch, "El record se conserva solo durante esta sesion.",
+        drawText(batch, "Desde la ronda 2, los aliens persiguen la nave y requieren varios impactos.",
                 width * 0.25f, height * 0.18f, 0.95f, COLOR_APAGADO);
+        drawText(batch, "3 impactos: disparo doble. 7 impactos: triple y dron de apoyo.",
+            width * 0.25f, height * 0.14f, 0.95f, COLOR_ACENTO);
 
         drawButtonLabel(batch, playButton, "JUGAR", COLOR_TEXTO);
         drawButtonLabel(batch, backButton, "VOLVER", COLOR_TEXTO);
@@ -240,6 +242,7 @@ public class PantallaMenu implements Screen {
     }
 
     private void startGame() {
+        ProgresionMejoras.obtenerInstancia().reiniciar();
         game.setScreen(new PantallaJuego(game, 1, 3, 0, 1, 1, 10));
         dispose();
     }

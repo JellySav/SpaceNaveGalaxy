@@ -3,9 +3,11 @@ package puppy.code;
 public final class ProgresionMejoras {
     private static final ProgresionMejoras INSTANCIA = new ProgresionMejoras();
     private static final int[] UMBRALES = {3, 7};
+    private static final int MAX_BATERIAS = 3;
 
     private int impactos;
     private int nivelArma = 1;
+    private int baterias;
 
     private ProgresionMejoras() {
     }
@@ -25,6 +27,23 @@ public final class ProgresionMejoras {
     public void reiniciar() {
         impactos = 0;
         nivelArma = 1;
+        baterias = 0;
+    }
+
+    public boolean registrarBateria() {
+        if (baterias >= MAX_BATERIAS) {
+            return false;
+        }
+        baterias++;
+        return true;
+    }
+
+    public boolean consumirBateria() {
+        if (baterias == 0) {
+            return false;
+        }
+        baterias--;
+        return true;
     }
 
     public int getImpactos() {
@@ -33,6 +52,10 @@ public final class ProgresionMejoras {
 
     public int getNivelArma() {
         return nivelArma;
+    }
+
+    public int getBaterias() {
+        return baterias;
     }
 
     public int getImpactosSiguienteMejora() {

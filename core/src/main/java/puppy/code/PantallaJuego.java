@@ -36,6 +36,7 @@ public class PantallaJuego implements Screen {
     private final int cantAsteroides;
     private int score;
     private Nave4 nave;
+    private ApoyoNave aliado;
     private float tiempoMensajeMejora;
     private String mensajeMejora = "";
 
@@ -66,6 +67,9 @@ public class PantallaJuego implements Screen {
                 naveHitSound, bulletTexture, bulletSound);
         nave.setVidas(vidas);
         nave.setNivelArma(progresion.getNivelArma());
+        if (nave.getNivelArma() >= 3) {
+            aliado = new DronEscolta(naveTexture);
+        }
         crearEnemigos();
     }
 
@@ -112,6 +116,7 @@ public class PantallaJuego implements Screen {
         font.setColor(0.88f, 0.93f, 0.94f, 1f);
         font.draw(batch, "VIDAS " + nave.getVidas() + "   RONDA " + ronda
                 + "   ARMA " + nave.getNombreArma(), 18f, alto - 20f);
+        font.draw(batch, "RECORD " + game.getHighScore(), Gdx.graphics.getWidth() - 315f, alto - 20f);
         font.draw(batch, "PUNTOS " + score, Gdx.graphics.getWidth() - 155f, alto - 20f);
         font.getData().setScale(1f);
 
@@ -142,14 +147,21 @@ public class PantallaJuego implements Screen {
         batch.begin();
         dibujaEncabezado();
 
-        actualizarBalas(frameDelta);
         actualizarEnemigos(frameDelta);
+        if (aliado != null) {
+            aliado.actualizar(frameDelta, nave.getCentroX(), nave.getCentroY(), enemigos,
+                bulletTexture, this::agregarBala);
+        }
+        actualizarBalas(frameDelta);
         tiempoMensajeMejora = Math.max(0f, tiempoMensajeMejora - frameDelta);
 
         for (Bullet bala : balas) {
             bala.draw(batch);
         }
         nave.draw(batch, this, frameDelta);
+        if (aliado != null) {
+            aliado.dibujar(batch);
+        }
         for (int i = enemigos.size() - 1; i >= 0; i--) {
             Enemigo enemigo = enemigos.get(i);
             enemigo.dibujar(batch);
@@ -179,7 +191,7 @@ public class PantallaJuego implements Screen {
             for (int j = enemigos.size() - 1; j >= 0; j--) {
                 Enemigo enemigo = enemigos.get(j);
                 if (bala.checkCollision(enemigo)) {
-                    registrarImpacto(enemigo);
+                    registrarImpacto();
                     if (enemigo.estaDestruido()) {
                         score += enemigo instanceof AlienEnemigo ? 25 : 10;
                         explosionSound.play(0.5f);
@@ -194,12 +206,17 @@ public class PantallaJuego implements Screen {
         }
     }
 
-    private void registrarImpacto(Enemigo enemigo) {
+    private void registrarImpacto() {
         int nivelAnterior = progresion.getNivelArma();
         int nuevoNivel = progresion.registrarImpacto();
         if (nuevoNivel > nivelAnterior) {
             nave.setNivelArma(nuevoNivel);
-            mensajeMejora = "NUEVA MEJORA: " + nave.getNombreArma();
+            if (nuevoNivel >= 3 && aliado == null) {
+                aliado = new DronEscolta(naveTexture);
+            }
+            mensajeMejora = nuevoNivel >= 3
+                    ? "NUEVA MEJORA: TRIPLE + DRON"
+                    : "NUEVA MEJORA: " + nave.getNombreArma();
             tiempoMensajeMejora = 2.5f;
         }
     }

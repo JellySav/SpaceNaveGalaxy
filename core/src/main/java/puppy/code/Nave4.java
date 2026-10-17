@@ -6,6 +6,7 @@ import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.math.Rectangle;
 
 public class Nave4 {
     private static final float VELOCIDAD = 260f;
@@ -18,6 +19,7 @@ public class Nave4 {
     private int vidas = 3;
     private float tiempoInvulnerable;
     private boolean destruida;
+    private boolean reparando;
     private int nivelArma = 1;
     private EstrategiaDisparo estrategiaDisparo = new DisparoSimple();
 
@@ -36,7 +38,7 @@ public class Nave4 {
 
     public void draw(SpriteBatch batch, PantallaJuego juego, float delta) {
         actualizarMovimiento(delta);
-        if (Gdx.input.isKeyJustPressed(Input.Keys.SPACE)) {
+        if (!reparando && Gdx.input.isKeyJustPressed(Input.Keys.SPACE)) {
             estrategiaDisparo.disparar(sprite.getX() + sprite.getWidth() / 2f,
                     sprite.getY() + sprite.getHeight(), texturaBala, juego::agregarBala);
             sonidoDisparo.play();
@@ -53,7 +55,7 @@ public class Nave4 {
     }
 
     private void actualizarMovimiento(float delta) {
-        if (tiempoInvulnerable > 0f || destruida) {
+        if (tiempoInvulnerable > 0f || destruida || reparando) {
             return;
         }
 
@@ -107,6 +109,25 @@ public class Nave4 {
 
     public int getVidas() {
         return vidas;
+    }
+
+    public Rectangle getArea() {
+        return sprite.getBoundingRectangle();
+    }
+
+    public void setReparando(boolean reparando) {
+        this.reparando = reparando;
+    }
+
+    public boolean isReparando() {
+        return reparando;
+    }
+
+    public void reparar() {
+        if (vidas < 3) {
+            vidas++;
+            destruida = false;
+        }
     }
 
     public void setVidas(int vidas) {

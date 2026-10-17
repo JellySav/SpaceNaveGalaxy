@@ -4,11 +4,13 @@ Prototipo 2D de supervivencia espacial hecho con [libGDX](https://libgdx.com/). 
 
 ## Controles y reglas
 
-- Flechas: cambian la velocidad de la nave en esa dirección; no son movimiento continuo.
+- Flechas: mantener pulsada una dirección mueve la nave de forma continua.
 - Menú: `Enter` o clic en «Iniciar partida» comienza; `C` o «Controles y reglas» abre las instrucciones; `Esc` cierra la aplicación.
-- Controles: `Flechas` cambia la velocidad de la nave, `Espacio` dispara; `Enter` o clic inicia la partida. `Esc` o `Retroceso` vuelve al menú.
+- Controles: `Flechas` mueven la nave, `Espacio` dispara; `Enter` o clic inicia la partida. `Esc` o `Retroceso` vuelve al menú.
 - Game over: cualquier tecla o clic inicia una partida nueva.
-- La nave comienza con 3 vidas. Cada asteroide destruido suma 10 puntos; las rondas agregan asteroides y aumentan su velocidad.
+- La nave comienza con 3 vidas. Los asteroides valen 10 puntos y los aliens 25; las rondas agregan asteroides y aumentan dificultad.
+- Cada 3 impactos se desbloquea disparo doble; con 7 impactos, disparo triple y un dron aliado que ataca enemigos cercanos.
+- Desde la ronda 2 aparecen aliens que persiguen la nave y requieren varios impactos. La progresión de armas se conserva entre rondas y reinicia al comenzar otra partida.
 - El récord solo se conserva mientras la aplicación permanece abierta.
 
 ## Tecnología y ejecución
@@ -21,9 +23,19 @@ Prototipo 2D de supervivencia espacial hecho con [libGDX](https://libgdx.com/). 
 
 Con un JDK compatible, ejecuta `./gradlew lwjgl3:run`. Para compilar todos los módulos usa `./gradlew build`; el JAR de escritorio se genera en `lwjgl3/build/libs`. El wrapper necesita conexión la primera vez para descargar Gradle y sus dependencias.
 
+## Arquitectura y patrones
+
+- **Clase abstracta y Template Method:** `Enemigo` comparte estado, impactos, límites y el ciclo final `actualizar`; `AsteroideEnemigo` y `AlienEnemigo` especializan su comportamiento.
+- **Interfaz:** `ObjetivoDisparo` permite que ambos enemigos reciban impactos a través de `Bullet`, sin acoplar el proyectil a una clase concreta. `ApoyoNave` define además el contrato extensible de aliados.
+- **Strategy:** `EstrategiaDisparo` intercambia disparo simple, doble o triple sin cambiar el control de la nave.
+- **Singleton:** `ProgresionMejoras` conserva impactos y nivel del arma entre rondas; se reinicia al comenzar otra partida.
+- **Builder:** `EnemigoBuilder` configura tipo, posición, velocidad y resistencia al crear enemigos por ronda.
+- **Encapsulamiento:** entidades mantienen sus datos internos privados o protegidos y exponen operaciones de juego en vez de permitir cambios arbitrarios desde la pantalla.
+- **Aliado:** `DronEscolta` implementa `ApoyoNave`; se desbloquea junto con el disparo triple y busca objetivos para atacar.
+
 ## Estado y límites
 
-Es una base didáctica, no un juego listo para publicar. No hay pruebas automatizadas, persistencia del récord, pausa, ajustes ni soporte de mando. El movimiento y disparo avanzan por frame, por lo que la velocidad depende de los FPS; las pulsaciones de dirección acumulan velocidad. Las cámaras responden al cambio de tamaño, pero no mantienen una relación de aspecto fija. Las colisiones son simples y el costo de detectar choques entre asteroides crece cuadráticamente con su cantidad.
+Es una base didáctica, no un juego listo para publicar. No hay pruebas automatizadas, persistencia del récord, pausa, ajustes ni soporte de mando. El movimiento de la nave, enemigos y proyectiles usa `delta`; las cámaras responden al cambio de tamaño, pero no mantienen una relación de aspecto fija. Las colisiones son simples y los impactos comparan proyectiles con enemigos, por lo que conviene añadir una estructura espacial si ambos grupos crecen mucho.
 
 ## Mejoras recomendadas
 
