@@ -1,33 +1,36 @@
-# SpaceNav2024
+# Space Navigation
 
-A [libGDX](https://libgdx.com/) project generated with [gdx-liftoff](https://github.com/libgdx/gdx-liftoff).
+Prototipo 2D de supervivencia espacial hecho con [libGDX](https://libgdx.com/). El jugador mueve una nave, dispara a asteroides, pierde vidas al chocar y avanza de ronda cuando elimina todos los asteroides. Al perder todas las vidas aparece la pantalla de fin de partida.
 
-This project was generated with a template including simple application launchers and an `ApplicationAdapter` extension that draws libGDX logo.
+## Controles y reglas
 
-## Platforms
+- Flechas: cambian la velocidad de la nave en esa dirección; no son movimiento continuo.
+- Menú: `Enter` o clic en «Iniciar partida» comienza; `C` o «Controles y reglas» abre las instrucciones; `Esc` cierra la aplicación.
+- Controles: `Flechas` cambia la velocidad de la nave, `Espacio` dispara; `Enter` o clic inicia la partida. `Esc` o `Retroceso` vuelve al menú.
+- Game over: cualquier tecla o clic inicia una partida nueva.
+- La nave comienza con 3 vidas. Cada asteroide destruido suma 10 puntos; las rondas agregan asteroides y aumentan su velocidad.
+- El récord solo se conserva mientras la aplicación permanece abierta.
 
-- `core`: Main module with the application logic shared by all platforms.
-- `lwjgl3`: Primary desktop platform using LWJGL3; was called 'desktop' in older docs.
+## Tecnología y ejecución
 
-## Gradle
+- `core`: lógica, entidades y pantallas compartidas del juego.
+- `lwjgl3`: lanzador de escritorio mediante LWJGL3. No hay lanzadores configurados para Android, iOS o web.
+- Java: código compatible con Java 11; se recomienda JDK 17 o 21 para ejecutar Gradle 8.10.1.
+- Dependencias principales: libGDX 1.12.1 y backend LWJGL3; Gradle resuelve las demás dependencias del lanzador.
+- Recursos: sprites PNG y audio OGG, WAV y MP3 ubicados en `assets/`.
 
-This project uses [Gradle](https://gradle.org/) to manage dependencies.
-The Gradle wrapper was included, so you can run Gradle tasks using `gradlew.bat` or `./gradlew` commands.
-Useful Gradle tasks and flags:
+Con un JDK compatible, ejecuta `./gradlew lwjgl3:run`. Para compilar todos los módulos usa `./gradlew build`; el JAR de escritorio se genera en `lwjgl3/build/libs`. El wrapper necesita conexión la primera vez para descargar Gradle y sus dependencias.
 
-- `--continue`: when using this flag, errors will not stop the tasks from running.
-- `--daemon`: thanks to this flag, Gradle daemon will be used to run chosen tasks.
-- `--offline`: when using this flag, cached dependency archives will be used.
-- `--refresh-dependencies`: this flag forces validation of all dependencies. Useful for snapshot versions.
-- `build`: builds sources and archives of every project.
-- `cleanEclipse`: removes Eclipse project data.
-- `cleanIdea`: removes IntelliJ project data.
-- `clean`: removes `build` folders, which store compiled classes and built archives.
-- `eclipse`: generates Eclipse project data.
-- `idea`: generates IntelliJ project data.
-- `lwjgl3:jar`: builds application's runnable jar, which can be found at `lwjgl3/build/libs`.
-- `lwjgl3:run`: starts the application.
-- `test`: runs unit tests (if any).
+## Estado y límites
 
-Note that most tasks that are not specific to a single project can be run with `name:` prefix, where the `name` should be replaced with the ID of a specific project.
-For example, `core:clean` removes `build` folder only from the `core` project.
+Es una base didáctica, no un juego listo para publicar. No hay pruebas automatizadas, persistencia del récord, pausa, ajustes ni soporte de mando. El movimiento y disparo avanzan por frame, por lo que la velocidad depende de los FPS; las pulsaciones de dirección acumulan velocidad. Las cámaras responden al cambio de tamaño, pero no mantienen una relación de aspecto fija. Las colisiones son simples y el costo de detectar choques entre asteroides crece cuadráticamente con su cantidad.
+
+## Mejoras recomendadas
+
+1. Basar movimiento, disparos y estados temporales en `delta`.
+2. Definir una relación de aspecto fija con `Viewport` y probar ventanas de distintos tamaños.
+3. Añadir pruebas para colisiones, vidas y progresión de rondas.
+4. Persistir el récord y añadir pausa, opciones de audio y controles configurables.
+5. Reducir el costo de colisiones si crece el número de asteroides.
+
+Actualmente se puede reutilizar el núcleo del juego y el lanzador de escritorio. Android, iOS y web no están configurados; cada plataforma requiere su propio módulo de lanzamiento y validación de entradas, audio y empaquetado.

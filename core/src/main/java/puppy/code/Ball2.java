@@ -16,18 +16,10 @@ public class Ball2 {
 
     public Ball2(int x, int y, int size, int xSpeed, int ySpeed, Texture tx) {
     	spr = new Sprite(tx);
-    	this.x = x; 
- 	
-        //validar que borde de esfera no quede fuera
-    	if (x-size < 0) this.x = x+size;
-    	if (x+size > Gdx.graphics.getWidth())this.x = x-size;
-         
-        this.y = y;
-        //validar que borde de esfera no quede fuera
-    	if (y-size < 0) this.y = y+size;
-    	if (y+size > Gdx.graphics.getHeight())this.y = y-size;
-    	
-        spr.setPosition(x, y);
+        spr.setSize(size * 2, size * 2);
+        this.x = Math.max(0, Math.min(x, Gdx.graphics.getWidth() - (int) spr.getWidth()));
+        this.y = Math.max(0, Math.min(y, Gdx.graphics.getHeight() - (int) spr.getHeight()));
+        spr.setPosition(this.x, this.y);
         this.setXSpeed(xSpeed);
         this.setySpeed(ySpeed);
     }

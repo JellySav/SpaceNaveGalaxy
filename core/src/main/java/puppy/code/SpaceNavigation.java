@@ -28,6 +28,7 @@ public class SpaceNavigation extends Game {
 	}
 
 	public void dispose() {
+		super.dispose();
 		batch.dispose();
 		font.dispose();
 	}

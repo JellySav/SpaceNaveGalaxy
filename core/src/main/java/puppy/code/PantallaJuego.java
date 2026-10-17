@@ -20,6 +20,11 @@ public class PantallaJuego implements Screen {
 	private SpriteBatch batch;
 	private Sound explosionSound;
 	private Music gameMusic;
+	private Texture naveTexture;
+	private Texture asteroidTexture;
+	private Texture bulletTexture;
+	private Sound naveHitSound;
+	private Sound bulletSound;
 	private int score;
 	private int ronda;
 	private int velXAsteroides; 
@@ -46,26 +51,27 @@ public class PantallaJuego implements Screen {
 		camera.setToOrtho(false, 800, 640);
 		//inicializar assets; musica de fondo y efectos de sonido
 		explosionSound = Gdx.audio.newSound(Gdx.files.internal("explosion.ogg"));
-		explosionSound.setVolume(1,0.5f);
 		gameMusic = Gdx.audio.newMusic(Gdx.files.internal("piano-loops.wav")); //
 		
 		gameMusic.setLooping(true);
 		gameMusic.setVolume(0.5f);
-		gameMusic.play();
 		
 	    // cargar imagen de la nave, 64x64   
-	    nave = new Nave4(Gdx.graphics.getWidth()/2-50,30,new Texture(Gdx.files.internal("MainShip3.png")),
-	    				Gdx.audio.newSound(Gdx.files.internal("hurt.ogg")), 
-	    				new Texture(Gdx.files.internal("Rocket2.png")), 
-	    				Gdx.audio.newSound(Gdx.files.internal("pop-sound.mp3"))); 
+		naveTexture = new Texture(Gdx.files.internal("MainShip3.png"));
+		bulletTexture = new Texture(Gdx.files.internal("Rocket2.png"));
+		naveHitSound = Gdx.audio.newSound(Gdx.files.internal("hurt.ogg"));
+		bulletSound = Gdx.audio.newSound(Gdx.files.internal("pop-sound.mp3"));
+		nave = new Nave4(Gdx.graphics.getWidth()/2-50,30,naveTexture,
+				naveHitSound, bulletTexture, bulletSound);
         nave.setVidas(vidas);
+		asteroidTexture = new Texture(Gdx.files.internal("aGreyMedium4.png"));
         //crear asteroides
         Random r = new Random();
 	    for (int i = 0; i < cantAsteroides; i++) {
 	        Ball2 bb = new Ball2(r.nextInt((int)Gdx.graphics.getWidth()),
 	  	            50+r.nextInt((int)Gdx.graphics.getHeight()-50),
 	  	            20+r.nextInt(10), velXAsteroides+r.nextInt(4), velYAsteroides+r.nextInt(4), 
-	  	            new Texture(Gdx.files.internal("aGreyMedium4.png")));	   
+				asteroidTexture);
 	  	    balls1.add(bb);
 	  	    balls2.add(bb);
 	  	}
@@ -81,6 +87,8 @@ public class PantallaJuego implements Screen {
 	@Override
 	public void render(float delta) {
 		  Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+		camera.update();
+		batch.setProjectionMatrix(camera.combined);
           batch.begin();
 		  dibujaEncabezado();
 	      if (!nave.estaHerido()) {
@@ -90,7 +98,7 @@ public class PantallaJuego implements Screen {
 		            b.update();
 		            for (int j = 0; j < balls1.size(); j++) {    
 		              if (b.checkCollision(balls1.get(j))) {          
-		            	 explosionSound.play();
+					explosionSound.play(0.5f);
 		            	 balls1.remove(j);
 		            	 balls2.remove(j);
 		            	 j--;
@@ -170,8 +178,8 @@ public class PantallaJuego implements Screen {
 
 	@Override
 	public void resize(int width, int height) {
-		// TODO Auto-generated method stub
-		
+		camera.setToOrtho(false, width, height);
+		camera.update();
 	}
 
 	@Override
@@ -197,6 +205,11 @@ public class PantallaJuego implements Screen {
 		// TODO Auto-generated method stub
 		this.explosionSound.dispose();
 		this.gameMusic.dispose();
+		this.naveTexture.dispose();
+		this.asteroidTexture.dispose();
+		this.bulletTexture.dispose();
+		this.naveHitSound.dispose();
+		this.bulletSound.dispose();
 	}
    
 }
