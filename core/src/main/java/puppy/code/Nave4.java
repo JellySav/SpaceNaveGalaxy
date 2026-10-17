@@ -9,6 +9,7 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Rectangle;
 
 public class Nave4 {
+    private static final int MAX_VIDAS = 3;
     private static final float VELOCIDAD = 260f;
     private static final float TIEMPO_INVULNERABLE = 0.9f;
 
@@ -124,14 +125,18 @@ public class Nave4 {
     }
 
     public void reparar() {
-        if (vidas < 3) {
+        if (puedeReparar()) {
             vidas++;
             destruida = false;
         }
     }
 
+    public boolean puedeReparar() {
+        return vidas < MAX_VIDAS;
+    }
+
     public void setVidas(int vidas) {
-        this.vidas = Math.max(0, vidas);
+        this.vidas = Math.max(0, Math.min(MAX_VIDAS, vidas));
         destruida = this.vidas == 0;
     }
 

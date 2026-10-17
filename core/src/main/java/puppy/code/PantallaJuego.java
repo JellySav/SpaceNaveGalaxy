@@ -252,7 +252,7 @@ public class PantallaJuego implements Screen {
 
     private void gestionarReparacion(float delta) {
         if (Gdx.input.isKeyJustPressed(com.badlogic.gdx.Input.Keys.R) && tecnico == null) {
-            if (nave.getVidas() >= 3) {
+            if (!nave.puedeReparar()) {
                 mostrarMensaje("NAVE INTEGRA: NO NECESITA REPARACION");
             } else if (!progresion.consumirBateria()) {
                 mostrarMensaje("SIN BATERIAS: DESTRUYE ENEMIGOS PARA ENCONTRAR UNA");
