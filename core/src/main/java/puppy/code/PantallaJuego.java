@@ -189,7 +189,6 @@ public class PantallaJuego implements Screen {
         batch.setProjectionMatrix(camera.combined);
         dibujarCampoEstelar();
         batch.begin();
-        dibujaEncabezado();
 
         actualizarEnemigos(frameDelta);
         if (aliado != null) {
@@ -218,6 +217,7 @@ public class PantallaJuego implements Screen {
                 enemigos.remove(i);
             }
         }
+        dibujaEncabezado();
         batch.end();
         if (tecnico != null) {
             shapeRenderer.setProjectionMatrix(camera.combined);

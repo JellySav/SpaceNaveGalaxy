@@ -120,15 +120,15 @@ public class PantallaMenu implements Screen {
         drawControlRow(batch, "ENTER / R / U", "Enter empieza; R repara; U instala mejoras ganadas.",
                 width * 0.25f, width * 0.43f, height * 0.43f);
 
-        drawText(batch, "OBJETIVO", width * 0.25f, height * 0.33f, 1.1f, COLOR_SECUNDARIO);
+        drawText(batch, "OBJETIVO", width * 0.25f, height * 0.38f, 1.1f, COLOR_SECUNDARIO);
         drawText(batch, "Empiezas con 3 vidas; cada asteroide destruido suma 10 puntos.",
-                width * 0.25f, height * 0.28f, 0.95f, COLOR_TEXTO);
+            width * 0.25f, height * 0.33f, 0.95f, COLOR_TEXTO);
         drawText(batch, "Al despejar la pantalla comienza otra ronda con mas asteroides y velocidad.",
-                width * 0.25f, height * 0.23f, 0.95f, COLOR_TEXTO);
+            width * 0.25f, height * 0.28f, 0.95f, COLOR_TEXTO);
         drawText(batch, "Ronda 2: aliens persiguen; enemigos pueden soltar baterias.",
-                width * 0.25f, height * 0.18f, 0.95f, COLOR_APAGADO);
+            width * 0.25f, height * 0.23f, 0.95f, COLOR_APAGADO);
         drawText(batch, "Doble: R2, 4 impactos, 35s y 1 bateria. Triple/dron: R3, 12 impactos, 2 aliens, 90s y 2 baterias; U instala.",
-            width * 0.25f, height * 0.14f, 0.95f, COLOR_ACENTO);
+            width * 0.25f, height * 0.18f, 0.95f, COLOR_ACENTO);
 
         drawButtonLabel(batch, playButton, "JUGAR", COLOR_TEXTO);
         drawButtonLabel(batch, backButton, "VOLVER", COLOR_TEXTO);

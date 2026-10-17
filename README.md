@@ -42,6 +42,14 @@ Con un JDK compatible, ejecuta `./gradlew lwjgl3:run`. Para compilar todos los m
 - **Encapsulamiento:** entidades mantienen sus datos internos privados o protegidos y exponen operaciones de juego en vez de permitir cambios arbitrarios desde la pantalla.
 - **Aliado:** `DronEscolta` implementa `ApoyoNave`; se desbloquea junto con el disparo triple y busca objetivos para atacar.
 
+## Recorrido galáctico
+
+- Rondas 1-2: Cinturón de Vela, primera señal de auxilio y dificultad inicial.
+- Rondas 3-4: Nebulosa de Ion, más aliens y mayor velocidad.
+- Ronda 5 en adelante: Frontera de Khepri, aliens más resistentes y más baterías.
+
+Cada salto muestra una breve transmisión, cambia el fondo y el color de las estrellas, y ajusta la dificultad y la probabilidad de encontrar recursos.
+
 ## Estado y límites
 
 Es una base didáctica, no un juego listo para publicar. No hay pruebas automatizadas, persistencia del récord, pausa, ajustes ni soporte de mando. El movimiento de la nave, enemigos y proyectiles usa `delta`; las cámaras responden al cambio de tamaño, pero no mantienen una relación de aspecto fija. Las colisiones son simples y los impactos comparan proyectiles con enemigos, por lo que conviene añadir una estructura espacial si ambos grupos crecen mucho.
