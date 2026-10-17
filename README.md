@@ -9,7 +9,7 @@ Prototipo 2D de supervivencia espacial hecho con [libGDX](https://libgdx.com/). 
 - Controles: `Flechas` mueven la nave y `Espacio` dispara; durante la partida, `R` inicia una reparación si tienes una batería.
 - Game over: cualquier tecla o clic inicia una partida nueva.
 - La nave comienza con 3 vidas. Los asteroides valen 10 puntos y los aliens 25; las rondas agregan asteroides y aumentan dificultad.
-- Cada 3 impactos se desbloquea disparo doble; con 7 impactos, disparo triple y un dron aliado que ataca enemigos cercanos.
+- Las mejoras ya no se activan automáticamente: el disparo doble exige ronda 2, 4 impactos, 35 segundos y 1 batería; el triple y el dron exigen ronda 3, 12 impactos, 90 segundos, 2 aliens derrotados y 2 baterías. Pulsa `U` para instalarlas.
 - Desde la ronda 2 aparecen aliens que persiguen la nave y requieren varios impactos. La progresión de armas se conserva entre rondas y reinicia al comenzar otra partida.
 - Los enemigos pueden soltar baterías; se pueden guardar hasta 3. Pulsa `R` para salir de la nave durante 4 segundos y recuperar una vida. Mientras el técnico trabaja, la nave no se mueve ni dispara, pero los enemigos y aliados siguen activos.
 - El récord solo se conserva mientras la aplicación permanece abierta.

@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Random;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.audio.Sound;
@@ -133,10 +134,7 @@ public class PantallaJuego implements Screen {
         }
         font.getData().setScale(1f);
 
-        int restantes = progresion.getImpactosSiguienteMejora();
-        String progreso = restantes == 0
-                ? "MEJORA MAXIMA | IMPACTOS " + progresion.getImpactos()
-                : "IMPACTOS " + progresion.getImpactos() + " | SIGUIENTE MEJORA EN " + restantes;
+        String progreso = progresion.getEstadoSiguienteMejora();
         font.setColor(0.49f, 0.85f, 0.79f, 1f);
         font.draw(batch, progreso, 18f, alto - 45f);
         font.setColor(1f, 1f, 1f, 1f);
@@ -154,6 +152,10 @@ public class PantallaJuego implements Screen {
     @Override
     public void render(float delta) {
         float frameDelta = Math.min(Math.max(delta, 0f), 0.05f);
+        boolean mejoraLista = progresion.puedeInstalarMejora();
+        progresion.avanzarTiempo(frameDelta, ronda);
+        notificarMejoraLista(mejoraLista);
+        gestionarInstalacionMejora();
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
         camera.update();
         batch.setProjectionMatrix(camera.combined);
@@ -219,6 +221,11 @@ public class PantallaJuego implements Screen {
                     if (enemigo.estaDestruido()) {
                         score += enemigo instanceof AlienEnemigo ? 25 : 10;
                         explosionSound.play(0.5f);
+                        if (enemigo instanceof AlienEnemigo) {
+                            boolean mejoraLista = progresion.puedeInstalarMejora();
+                            progresion.registrarAlienDerrotado();
+                            notificarMejoraLista(mejoraLista);
+                        }
                         if (random.nextFloat() < (enemigo instanceof AlienEnemigo ? 0.55f : 0.12f)) {
                             Rectangle area = enemigo.getArea();
                             baterias.add(new BateriaEnergia(area.x + area.width / 2f,
@@ -236,17 +243,30 @@ public class PantallaJuego implements Screen {
     }
 
     private void registrarImpacto() {
-        int nivelAnterior = progresion.getNivelArma();
-        int nuevoNivel = progresion.registrarImpacto();
-        if (nuevoNivel > nivelAnterior) {
-            nave.setNivelArma(nuevoNivel);
-            if (nuevoNivel >= 3 && aliado == null) {
-                aliado = new DronEscolta(naveTexture);
-            }
-            mensajeMejora = nuevoNivel >= 3
-                    ? "NUEVA MEJORA: TRIPLE + DRON"
-                    : "NUEVA MEJORA: " + nave.getNombreArma();
-            tiempoMensajeMejora = 2.5f;
+        boolean mejoraLista = progresion.puedeInstalarMejora();
+        progresion.registrarImpacto();
+        notificarMejoraLista(mejoraLista);
+    }
+
+    private void gestionarInstalacionMejora() {
+        if (!Gdx.input.isKeyJustPressed(Input.Keys.U)) {
+            return;
+        }
+        if (!progresion.instalarMejora()) {
+            mostrarMensaje("MEJORA BLOQUEADA: COMPLETA LOS REQUISITOS Y REUNE BATERIAS");
+            return;
+        }
+
+        nave.setNivelArma(progresion.getNivelArma());
+        if (progresion.getNivelArma() >= 3 && aliado == null) {
+            aliado = new DronEscolta(naveTexture);
+        }
+        mostrarMensaje("MEJORA INSTALADA: " + nave.getNombreArma());
+    }
+
+    private void notificarMejoraLista(boolean estabaLista) {
+        if (!estabaLista && progresion.puedeInstalarMejora()) {
+            mostrarMensaje("MEJORA DISPONIBLE: PULSA U PARA INSTALAR");
         }
     }
 
@@ -281,10 +301,14 @@ public class PantallaJuego implements Screen {
         while (iterator.hasNext()) {
             BateriaEnergia bateria = iterator.next();
             bateria.actualizar(delta);
-            if (bateria.toca(nave.getArea()) && progresion.registrarBateria()) {
-                bateria.recoger();
-                iterator.remove();
-                mostrarMensaje("BATERIA RECARGADA");
+            if (bateria.toca(nave.getArea())) {
+                boolean mejoraLista = progresion.puedeInstalarMejora();
+                if (progresion.registrarBateria()) {
+                    bateria.recoger();
+                    iterator.remove();
+                    mostrarMensaje("BATERIA RECARGADA");
+                    notificarMejoraLista(mejoraLista);
+                }
             }
         }
     }
