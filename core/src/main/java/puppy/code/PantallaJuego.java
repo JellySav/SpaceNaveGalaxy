@@ -1,6 +1,8 @@
 package puppy.code;
 
 import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Random;
 
 import com.badlogic.gdx.Gdx;
@@ -10,206 +12,245 @@ import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 
-
 public class PantallaJuego implements Screen {
+    private final SpaceNavigation game;
+    private final OrthographicCamera camera;
+    private final SpriteBatch batch;
+    private final Sound explosionSound;
+    private final Music gameMusic;
+    private final Texture naveTexture;
+    private final Texture asteroidTexture;
+    private final Texture bulletTexture;
+    private final Sound naveHitSound;
+    private final Sound bulletSound;
+    private final List<Enemigo> enemigos = new ArrayList<>();
+    private final List<Bullet> balas = new ArrayList<>();
+    private final ProgresionMejoras progresion = ProgresionMejoras.obtenerInstancia();
 
-	private SpaceNavigation game;
-	private OrthographicCamera camera;	
-	private SpriteBatch batch;
-	private Sound explosionSound;
-	private Music gameMusic;
-	private Texture naveTexture;
-	private Texture asteroidTexture;
-	private Texture bulletTexture;
-	private Sound naveHitSound;
-	private Sound bulletSound;
-	private int score;
-	private int ronda;
-	private int velXAsteroides; 
-	private int velYAsteroides; 
-	private int cantAsteroides;
-	
-	private Nave4 nave;
-	private  ArrayList<Ball2> balls1 = new ArrayList<>();
-	private  ArrayList<Ball2> balls2 = new ArrayList<>();
-	private  ArrayList<Bullet> balas = new ArrayList<>();
+    private final int ronda;
+    private final int velXAsteroides;
+    private final int velYAsteroides;
+    private final int cantAsteroides;
+    private int score;
+    private Nave4 nave;
+    private float tiempoMensajeMejora;
+    private String mensajeMejora = "";
 
+    public PantallaJuego(SpaceNavigation game, int ronda, int vidas, int score,
+                         int velXAsteroides, int velYAsteroides, int cantAsteroides) {
+        this.game = game;
+        this.ronda = ronda;
+        this.score = score;
+        this.velXAsteroides = velXAsteroides;
+        this.velYAsteroides = velYAsteroides;
+        this.cantAsteroides = cantAsteroides;
 
-	public PantallaJuego(SpaceNavigation game, int ronda, int vidas, int score,  
-			int velXAsteroides, int velYAsteroides, int cantAsteroides) {
-		this.game = game;
-		this.ronda = ronda;
-		this.score = score;
-		this.velXAsteroides = velXAsteroides;
-		this.velYAsteroides = velYAsteroides;
-		this.cantAsteroides = cantAsteroides;
-		
-		batch = game.getBatch();
-		camera = new OrthographicCamera();	
-		camera.setToOrtho(false, 800, 640);
-		//inicializar assets; musica de fondo y efectos de sonido
-		explosionSound = Gdx.audio.newSound(Gdx.files.internal("explosion.ogg"));
-		gameMusic = Gdx.audio.newMusic(Gdx.files.internal("piano-loops.wav")); //
-		
-		gameMusic.setLooping(true);
-		gameMusic.setVolume(0.5f);
-		
-	    // cargar imagen de la nave, 64x64   
-		naveTexture = new Texture(Gdx.files.internal("MainShip3.png"));
-		bulletTexture = new Texture(Gdx.files.internal("Rocket2.png"));
-		naveHitSound = Gdx.audio.newSound(Gdx.files.internal("hurt.ogg"));
-		bulletSound = Gdx.audio.newSound(Gdx.files.internal("pop-sound.mp3"));
-		nave = new Nave4(Gdx.graphics.getWidth()/2-50,30,naveTexture,
-				naveHitSound, bulletTexture, bulletSound);
+        batch = game.getBatch();
+        camera = new OrthographicCamera();
+        camera.setToOrtho(false, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+        explosionSound = Gdx.audio.newSound(Gdx.files.internal("explosion.ogg"));
+        gameMusic = Gdx.audio.newMusic(Gdx.files.internal("piano-loops.wav"));
+        gameMusic.setLooping(true);
+        gameMusic.setVolume(0.5f);
+
+        naveTexture = new Texture(Gdx.files.internal("MainShip3.png"));
+        bulletTexture = new Texture(Gdx.files.internal("Rocket2.png"));
+        asteroidTexture = new Texture(Gdx.files.internal("aGreyMedium4.png"));
+        naveHitSound = Gdx.audio.newSound(Gdx.files.internal("hurt.ogg"));
+        bulletSound = Gdx.audio.newSound(Gdx.files.internal("pop-sound.mp3"));
+
+        nave = new Nave4(Gdx.graphics.getWidth() / 2 - 22, 30, naveTexture,
+                naveHitSound, bulletTexture, bulletSound);
         nave.setVidas(vidas);
-		asteroidTexture = new Texture(Gdx.files.internal("aGreyMedium4.png"));
-        //crear asteroides
-        Random r = new Random();
-	    for (int i = 0; i < cantAsteroides; i++) {
-	        Ball2 bb = new Ball2(r.nextInt((int)Gdx.graphics.getWidth()),
-	  	            50+r.nextInt((int)Gdx.graphics.getHeight()-50),
-	  	            20+r.nextInt(10), velXAsteroides+r.nextInt(4), velYAsteroides+r.nextInt(4), 
-				asteroidTexture);
-	  	    balls1.add(bb);
-	  	    balls2.add(bb);
-	  	}
-	}
-    
-	public void dibujaEncabezado() {
-		CharSequence str = "Vidas: "+nave.getVidas()+" Ronda: "+ronda;
-		game.getFont().getData().setScale(2f);		
-		game.getFont().draw(batch, str, 10, 30);
-		game.getFont().draw(batch, "Score:"+this.score, Gdx.graphics.getWidth()-150, 30);
-		game.getFont().draw(batch, "HighScore:"+game.getHighScore(), Gdx.graphics.getWidth()/2-100, 30);
-	}
-	@Override
-	public void render(float delta) {
-		  Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
-		camera.update();
-		batch.setProjectionMatrix(camera.combined);
-          batch.begin();
-		  dibujaEncabezado();
-	      if (!nave.estaHerido()) {
-		      // colisiones entre balas y asteroides y su destruccion  
-	    	  for (int i = 0; i < balas.size(); i++) {
-		            Bullet b = balas.get(i);
-		            b.update();
-		            for (int j = 0; j < balls1.size(); j++) {    
-		              if (b.checkCollision(balls1.get(j))) {          
-					explosionSound.play(0.5f);
-		            	 balls1.remove(j);
-		            	 balls2.remove(j);
-		            	 j--;
-		            	 score +=10;
-		              }   	  
-		  	        }
-		                
-		         //   b.draw(batch);
-		            if (b.isDestroyed()) {
-		                balas.remove(b);
-		                i--; //para no saltarse 1 tras eliminar del arraylist
-		            }
-		      }
-		      //actualizar movimiento de asteroides dentro del area
-		      for (Ball2 ball : balls1) {
-		          ball.update();
-		      }
-		      //colisiones entre asteroides y sus rebotes  
-		      for (int i=0;i<balls1.size();i++) {
-		    	Ball2 ball1 = balls1.get(i);   
-		        for (int j=0;j<balls2.size();j++) {
-		          Ball2 ball2 = balls2.get(j); 
-		          if (i<j) {
-		        	  ball1.checkCollision(ball2);
-		     
-		          }
-		        }
-		      } 
-	      }
-	      //dibujar balas
-	     for (Bullet b : balas) {       
-	          b.draw(batch);
-	      }
-	      nave.draw(batch, this);
-	      //dibujar asteroides y manejar colision con nave
-	      for (int i = 0; i < balls1.size(); i++) {
-	    	    Ball2 b=balls1.get(i);
-	    	    b.draw(batch);
-		          //perdió vida o game over
-	              if (nave.checkCollision(b)) {
-		            //asteroide se destruye con el choque             
-	            	 balls1.remove(i);
-	            	 balls2.remove(i);
-	            	 i--;
-              }   	  
-  	        }
-	      
-	      if (nave.estaDestruido()) {
-  			if (score > game.getHighScore())
-  				game.setHighScore(score);
-	    	Screen ss = new PantallaGameOver(game);
-  			ss.resize(1200, 800);
-  			game.setScreen(ss);
-  			dispose();
-  		  }
-	      batch.end();
-	      //nivel completado
-	      if (balls1.size()==0) {
-			Screen ss = new PantallaJuego(game,ronda+1, nave.getVidas(), score, 
-					velXAsteroides+3, velYAsteroides+3, cantAsteroides+10);
-			ss.resize(1200, 800);
-			game.setScreen(ss);
-			dispose();
-		  }
-	    	 
-	}
-    
-    public boolean agregarBala(Bullet bb) {
-    	return balas.add(bb);
+        nave.setNivelArma(progresion.getNivelArma());
+        crearEnemigos();
     }
-	
-	@Override
-	public void show() {
-		// TODO Auto-generated method stub
-		gameMusic.play();
-	}
 
-	@Override
-	public void resize(int width, int height) {
-		camera.setToOrtho(false, width, height);
-		camera.update();
-	}
+    private void crearEnemigos() {
+        Random random = new Random();
+        float anchoMundo = Gdx.graphics.getWidth();
+        float altoMundo = Gdx.graphics.getHeight();
+        for (int i = 0; i < cantAsteroides; i++) {
+            float size = 20f + random.nextInt(10);
+            float x = random.nextFloat() * Math.max(1f, anchoMundo - size * 2f);
+            float y = 65f + random.nextFloat() * Math.max(1f, altoMundo - 65f - size * 2f);
+            float speedX = (velXAsteroides + random.nextInt(4)) * 42f;
+            float speedY = (velYAsteroides + random.nextInt(4)) * 42f;
+            if (random.nextBoolean()) {
+                speedX = -speedX;
+            }
+            enemigos.add(new EnemigoBuilder()
+                    .tipo(EnemigoBuilder.Tipo.ASTEROIDE)
+                    .posicion(x, y)
+                    .tamano(size * 2f)
+                    .velocidad(speedX, speedY)
+                    .construir(asteroidTexture));
+        }
 
-	@Override
-	public void pause() {
-		// TODO Auto-generated method stub
-		
-	}
+        int cantidadAliens = ronda < 2 ? 0 : Math.min(4, ronda - 1);
+        for (int i = 0; i < cantidadAliens; i++) {
+            float x = random.nextFloat() * Math.max(1f, anchoMundo - 48f);
+            float y = altoMundo * (0.55f + random.nextFloat() * 0.35f);
+            float velocidad = Math.min(190f, 85f + ronda * 14f);
+            int resistencia = Math.min(4, 1 + ronda / 2);
+            enemigos.add(new EnemigoBuilder()
+                    .tipo(EnemigoBuilder.Tipo.ALIEN)
+                    .posicion(x, y)
+                    .velocidad(velocidad, velocidad)
+                    .resistencia(resistencia)
+                    .construir(naveTexture));
+        }
+    }
 
-	@Override
-	public void resume() {
-		// TODO Auto-generated method stub
-		
-	}
+    private void dibujaEncabezado() {
+        BitmapFont font = game.getFont();
+        float alto = Gdx.graphics.getHeight();
+        font.getData().setScale(1.25f);
+        font.setColor(0.88f, 0.93f, 0.94f, 1f);
+        font.draw(batch, "VIDAS " + nave.getVidas() + "   RONDA " + ronda
+                + "   ARMA " + nave.getNombreArma(), 18f, alto - 20f);
+        font.draw(batch, "PUNTOS " + score, Gdx.graphics.getWidth() - 155f, alto - 20f);
+        font.getData().setScale(1f);
 
-	@Override
-	public void hide() {
-		// TODO Auto-generated method stub
-		
-	}
+        int restantes = progresion.getImpactosSiguienteMejora();
+        String progreso = restantes == 0
+                ? "MEJORA MAXIMA | IMPACTOS " + progresion.getImpactos()
+                : "IMPACTOS " + progresion.getImpactos() + " | SIGUIENTE MEJORA EN " + restantes;
+        font.setColor(0.49f, 0.85f, 0.79f, 1f);
+        font.draw(batch, progreso, 18f, alto - 45f);
+        font.setColor(1f, 1f, 1f, 1f);
 
-	@Override
-	public void dispose() {
-		// TODO Auto-generated method stub
-		this.explosionSound.dispose();
-		this.gameMusic.dispose();
-		this.naveTexture.dispose();
-		this.asteroidTexture.dispose();
-		this.bulletTexture.dispose();
-		this.naveHitSound.dispose();
-		this.bulletSound.dispose();
-	}
-   
+        if (tiempoMensajeMejora > 0f) {
+            font.getData().setScale(2f);
+            font.setColor(1f, 0.78f, 0.35f, 1f);
+            font.draw(batch, mensajeMejora,
+                    Gdx.graphics.getWidth() / 2f - 110f, Gdx.graphics.getHeight() * 0.72f);
+            font.getData().setScale(1f);
+            font.setColor(1f, 1f, 1f, 1f);
+        }
+    }
+
+    @Override
+    public void render(float delta) {
+        float frameDelta = Math.min(Math.max(delta, 0f), 0.05f);
+        Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+        camera.update();
+        batch.setProjectionMatrix(camera.combined);
+        batch.begin();
+        dibujaEncabezado();
+
+        actualizarBalas(frameDelta);
+        actualizarEnemigos(frameDelta);
+        tiempoMensajeMejora = Math.max(0f, tiempoMensajeMejora - frameDelta);
+
+        for (Bullet bala : balas) {
+            bala.draw(batch);
+        }
+        nave.draw(batch, this, frameDelta);
+        for (int i = enemigos.size() - 1; i >= 0; i--) {
+            Enemigo enemigo = enemigos.get(i);
+            enemigo.dibujar(batch);
+            if (nave.checkCollision(enemigo)) {
+                enemigos.remove(i);
+            }
+        }
+        batch.end();
+
+        if (nave.estaDestruido()) {
+            if (score > game.getHighScore()) {
+                game.setHighScore(score);
+            }
+            game.setScreen(new PantallaGameOver(game));
+            dispose();
+        } else if (enemigos.isEmpty()) {
+            game.setScreen(new PantallaJuego(game, ronda + 1, nave.getVidas(), score,
+                    velXAsteroides + 2, velYAsteroides + 2, cantAsteroides + 10));
+            dispose();
+        }
+    }
+
+    private void actualizarBalas(float delta) {
+        for (int i = balas.size() - 1; i >= 0; i--) {
+            Bullet bala = balas.get(i);
+            bala.update(delta);
+            for (int j = enemigos.size() - 1; j >= 0; j--) {
+                Enemigo enemigo = enemigos.get(j);
+                if (bala.checkCollision(enemigo)) {
+                    registrarImpacto(enemigo);
+                    if (enemigo.estaDestruido()) {
+                        score += enemigo instanceof AlienEnemigo ? 25 : 10;
+                        explosionSound.play(0.5f);
+                        enemigos.remove(j);
+                    }
+                    break;
+                }
+            }
+            if (bala.isDestroyed()) {
+                balas.remove(i);
+            }
+        }
+    }
+
+    private void registrarImpacto(Enemigo enemigo) {
+        int nivelAnterior = progresion.getNivelArma();
+        int nuevoNivel = progresion.registrarImpacto();
+        if (nuevoNivel > nivelAnterior) {
+            nave.setNivelArma(nuevoNivel);
+            mensajeMejora = "NUEVA MEJORA: " + nave.getNombreArma();
+            tiempoMensajeMejora = 2.5f;
+        }
+    }
+
+    private void actualizarEnemigos(float delta) {
+        Iterator<Enemigo> iterator = enemigos.iterator();
+        while (iterator.hasNext()) {
+            Enemigo enemigo = iterator.next();
+            enemigo.actualizar(delta, Gdx.graphics.getWidth(), Gdx.graphics.getHeight(),
+                    nave.getCentroX(), nave.getCentroY());
+            if (enemigo.estaDestruido()) {
+                iterator.remove();
+            }
+        }
+    }
+
+    public boolean agregarBala(Bullet bala) {
+        return balas.add(bala);
+    }
+
+    @Override
+    public void show() {
+        gameMusic.play();
+    }
+
+    @Override
+    public void resize(int width, int height) {
+        camera.setToOrtho(false, width, height);
+        camera.update();
+    }
+
+    @Override
+    public void pause() {
+    }
+
+    @Override
+    public void resume() {
+    }
+
+    @Override
+    public void hide() {
+    }
+
+    @Override
+    public void dispose() {
+        explosionSound.dispose();
+        gameMusic.dispose();
+        naveTexture.dispose();
+        asteroidTexture.dispose();
+        bulletTexture.dispose();
+        naveHitSound.dispose();
+        bulletSound.dispose();
+    }
 }

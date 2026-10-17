@@ -8,19 +8,19 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 
 public class Bullet {
 
-	private int xSpeed;
-	private int ySpeed;
+	private float xSpeed;
+	private float ySpeed;
 	private boolean destroyed = false;
 	private Sprite spr;
 	    
-	    public Bullet(float x, float y, int xSpeed, int ySpeed, Texture tx) {
+	    public Bullet(float x, float y, float xSpeed, float ySpeed, Texture tx) {
 	    	spr = new Sprite(tx);
 	    	spr.setPosition(x, y);
 	        this.xSpeed = xSpeed;
 	        this.ySpeed = ySpeed;
 	    }
-	    public void update() {
-	        spr.setPosition(spr.getX()+xSpeed, spr.getY()+ySpeed);
+	    public void update(float delta) {
+	        spr.setPosition(spr.getX()+xSpeed * delta, spr.getY()+ySpeed * delta);
 	        if (spr.getX() < 0 || spr.getX()+spr.getWidth() > Gdx.graphics.getWidth()) {
 	            destroyed = true;
 	        }
@@ -34,10 +34,15 @@ public class Bullet {
 	    	spr.draw(batch);
 	    }
 	    
-	    public boolean checkCollision(Ball2 b2) {
-	        if(spr.getBoundingRectangle().overlaps(b2.getArea())){
-	        	// Se destruyen ambos
+	    public void update() {
+	        update(1f / 60f);
+	    }
+
+	    public boolean checkCollision(ObjetivoDisparo objetivo) {
+	        if (!destroyed && objetivo.estaActivo()
+	                && spr.getBoundingRectangle().overlaps(objetivo.getArea())) {
 	            this.destroyed = true;
+	            objetivo.recibirImpacto();
 	            return true;
 	
 	        }
