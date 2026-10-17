@@ -117,7 +117,7 @@ public class PantallaMenu implements Screen {
                 width * 0.25f, width * 0.43f, height * 0.61f);
         drawControlRow(batch, "ESPACIO", "Dispara hacia arriba; apunta y evita los asteroides.",
                 width * 0.25f, width * 0.43f, height * 0.52f);
-        drawControlRow(batch, "ENTER / CLIC", "Inicia la partida desde este menu.",
+        drawControlRow(batch, "ENTER / R", "Enter empieza; en partida, R repara con una bateria.",
                 width * 0.25f, width * 0.43f, height * 0.43f);
 
         drawText(batch, "OBJETIVO", width * 0.25f, height * 0.33f, 1.1f, COLOR_SECUNDARIO);
@@ -125,7 +125,7 @@ public class PantallaMenu implements Screen {
                 width * 0.25f, height * 0.28f, 0.95f, COLOR_TEXTO);
         drawText(batch, "Al despejar la pantalla comienza otra ronda con mas asteroides y velocidad.",
                 width * 0.25f, height * 0.23f, 0.95f, COLOR_TEXTO);
-        drawText(batch, "Desde la ronda 2, los aliens persiguen la nave y requieren varios impactos.",
+        drawText(batch, "Ronda 2: aliens persiguen; enemigos pueden soltar baterias.",
                 width * 0.25f, height * 0.18f, 0.95f, COLOR_APAGADO);
         drawText(batch, "3 impactos: disparo doble. 7 impactos: triple y dron de apoyo.",
             width * 0.25f, height * 0.14f, 0.95f, COLOR_ACENTO);

@@ -7,6 +7,11 @@ public class TecnicoExtravehicular {
     private float y;
     private float tiempo;
 
+    public TecnicoExtravehicular(float naveX, float naveY) {
+        x = naveX + 32f;
+        y = naveY - 8f;
+    }
+
     public void actualizar(float delta, float naveX, float naveY) {
         tiempo += delta;
         float destinoX = naveX + 32f;

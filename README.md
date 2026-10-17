@@ -6,11 +6,12 @@ Prototipo 2D de supervivencia espacial hecho con [libGDX](https://libgdx.com/). 
 
 - Flechas: mantener pulsada una dirección mueve la nave de forma continua.
 - Menú: `Enter` o clic en «Iniciar partida» comienza; `C` o «Controles y reglas» abre las instrucciones; `Esc` cierra la aplicación.
-- Controles: `Flechas` mueven la nave, `Espacio` dispara; `Enter` o clic inicia la partida. `Esc` o `Retroceso` vuelve al menú.
+- Controles: `Flechas` mueven la nave y `Espacio` dispara; durante la partida, `R` inicia una reparación si tienes una batería.
 - Game over: cualquier tecla o clic inicia una partida nueva.
 - La nave comienza con 3 vidas. Los asteroides valen 10 puntos y los aliens 25; las rondas agregan asteroides y aumentan dificultad.
 - Cada 3 impactos se desbloquea disparo doble; con 7 impactos, disparo triple y un dron aliado que ataca enemigos cercanos.
 - Desde la ronda 2 aparecen aliens que persiguen la nave y requieren varios impactos. La progresión de armas se conserva entre rondas y reinicia al comenzar otra partida.
+- Los enemigos pueden soltar baterías; se pueden guardar hasta 3. Mantén `R` para salir de la nave durante 4 segundos y recuperar una vida. Mientras el técnico trabaja, la nave no se mueve ni dispara, pero los enemigos y aliados siguen activos.
 - El récord solo se conserva mientras la aplicación permanece abierta.
 
 ## Tecnología y ejecución
@@ -28,7 +29,7 @@ Con un JDK compatible, ejecuta `./gradlew lwjgl3:run`. Para compilar todos los m
 - **Clase abstracta y Template Method:** `Enemigo` comparte estado, impactos, límites y el ciclo final `actualizar`; `AsteroideEnemigo` y `AlienEnemigo` especializan su comportamiento.
 - **Interfaz:** `ObjetivoDisparo` permite que ambos enemigos reciban impactos a través de `Bullet`, sin acoplar el proyectil a una clase concreta. `ApoyoNave` define además el contrato extensible de aliados.
 - **Strategy:** `EstrategiaDisparo` intercambia disparo simple, doble o triple sin cambiar el control de la nave.
-- **Singleton:** `ProgresionMejoras` conserva impactos y nivel del arma entre rondas; se reinicia al comenzar otra partida.
+- **Singleton:** `ProgresionMejoras` conserva impactos, nivel del arma y baterías entre rondas; se reinicia al comenzar otra partida.
 - **Builder:** `EnemigoBuilder` configura tipo, posición, velocidad y resistencia al crear enemigos por ronda.
 - **Encapsulamiento:** entidades mantienen sus datos internos privados o protegidos y exponen operaciones de juego en vez de permitir cambios arbitrarios desde la pantalla.
 - **Aliado:** `DronEscolta` implementa `ApoyoNave`; se desbloquea junto con el disparo triple y busca objetivos para atacar.

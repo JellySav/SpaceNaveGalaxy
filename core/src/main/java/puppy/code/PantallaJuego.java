@@ -14,6 +14,8 @@ import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
+import com.badlogic.gdx.math.Rectangle;
 
 public class PantallaJuego implements Screen {
     private final SpaceNavigation game;
@@ -28,7 +30,10 @@ public class PantallaJuego implements Screen {
     private final Sound bulletSound;
     private final List<Enemigo> enemigos = new ArrayList<>();
     private final List<Bullet> balas = new ArrayList<>();
+    private final List<BateriaEnergia> baterias = new ArrayList<>();
     private final ProgresionMejoras progresion = ProgresionMejoras.obtenerInstancia();
+    private final ShapeRenderer shapeRenderer = new ShapeRenderer();
+    private final Random random = new Random();
 
     private final int ronda;
     private final int velXAsteroides;
@@ -37,7 +42,9 @@ public class PantallaJuego implements Screen {
     private int score;
     private Nave4 nave;
     private ApoyoNave aliado;
+    private TecnicoExtravehicular tecnico;
     private float tiempoMensajeMejora;
+    private float tiempoReparacion;
     private String mensajeMejora = "";
 
     public PantallaJuego(SpaceNavigation game, int ronda, int vidas, int score,
@@ -118,6 +125,12 @@ public class PantallaJuego implements Screen {
                 + "   ARMA " + nave.getNombreArma(), 18f, alto - 20f);
         font.draw(batch, "RECORD " + game.getHighScore(), Gdx.graphics.getWidth() - 315f, alto - 20f);
         font.draw(batch, "PUNTOS " + score, Gdx.graphics.getWidth() - 155f, alto - 20f);
+        font.draw(batch, "BATERIAS " + progresion.getBaterias() + "   R: REPARAR",
+            18f, alto - 70f);
+        if (tecnico != null) {
+            font.draw(batch, "TECNICO EXTERIOR " + (int) Math.ceil(tiempoReparacion) + " s",
+                18f, alto - 95f);
+        }
         font.getData().setScale(1f);
 
         int restantes = progresion.getImpactosSiguienteMejora();
@@ -150,8 +163,9 @@ public class PantallaJuego implements Screen {
         actualizarEnemigos(frameDelta);
         if (aliado != null) {
             aliado.actualizar(frameDelta, nave.getCentroX(), nave.getCentroY(), enemigos,
-                bulletTexture, this::agregarBala);
+                    bulletTexture, this::agregarBala);
         }
+        gestionarReparacion(frameDelta);
         actualizarBalas(frameDelta);
         tiempoMensajeMejora = Math.max(0f, tiempoMensajeMejora - frameDelta);
 
@@ -159,6 +173,10 @@ public class PantallaJuego implements Screen {
             bala.draw(batch);
         }
         nave.draw(batch, this, frameDelta);
+        actualizarBaterias(frameDelta);
+        for (BateriaEnergia bateria : baterias) {
+            bateria.dibujar(batch);
+        }
         if (aliado != null) {
             aliado.dibujar(batch);
         }
@@ -170,6 +188,12 @@ public class PantallaJuego implements Screen {
             }
         }
         batch.end();
+        if (tecnico != null) {
+            shapeRenderer.setProjectionMatrix(camera.combined);
+            shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
+            tecnico.dibujar(shapeRenderer, nave.getCentroX(), nave.getCentroY());
+            shapeRenderer.end();
+        }
 
         if (nave.estaDestruido()) {
             if (score > game.getHighScore()) {
@@ -195,6 +219,11 @@ public class PantallaJuego implements Screen {
                     if (enemigo.estaDestruido()) {
                         score += enemigo instanceof AlienEnemigo ? 25 : 10;
                         explosionSound.play(0.5f);
+                        if (random.nextFloat() < (enemigo instanceof AlienEnemigo ? 0.55f : 0.12f)) {
+                            Rectangle area = enemigo.getArea();
+                            baterias.add(new BateriaEnergia(area.x + area.width / 2f,
+                                    area.y + area.height / 2f, bulletTexture));
+                        }
                         enemigos.remove(j);
                     }
                     break;
@@ -219,6 +248,50 @@ public class PantallaJuego implements Screen {
                     : "NUEVA MEJORA: " + nave.getNombreArma();
             tiempoMensajeMejora = 2.5f;
         }
+    }
+
+    private void gestionarReparacion(float delta) {
+        if (Gdx.input.isKeyJustPressed(com.badlogic.gdx.Input.Keys.R) && tecnico == null) {
+            if (nave.getVidas() >= 3) {
+                mostrarMensaje("NAVE INTEGRA: NO NECESITA REPARACION");
+            } else if (!progresion.consumirBateria()) {
+                mostrarMensaje("SIN BATERIAS: DESTRUYE ENEMIGOS PARA ENCONTRAR UNA");
+            } else {
+                tecnico = new TecnicoExtravehicular(nave.getCentroX(), nave.getCentroY());
+                tiempoReparacion = 4f;
+                nave.setReparando(true);
+                mostrarMensaje("TECNICO FUERA: LA NAVE NO PUEDE MOVERSE NI DISPARAR");
+            }
+        }
+
+        if (tecnico != null) {
+            tecnico.actualizar(delta, nave.getCentroX(), nave.getCentroY());
+            tiempoReparacion = Math.max(0f, tiempoReparacion - delta);
+            if (tiempoReparacion == 0f) {
+                nave.reparar();
+                nave.setReparando(false);
+                tecnico = null;
+                mostrarMensaje("REPARACION COMPLETA: +1 VIDA");
+            }
+        }
+    }
+
+    private void actualizarBaterias(float delta) {
+        Iterator<BateriaEnergia> iterator = baterias.iterator();
+        while (iterator.hasNext()) {
+            BateriaEnergia bateria = iterator.next();
+            bateria.actualizar(delta);
+            if (bateria.toca(nave.getArea()) && progresion.registrarBateria()) {
+                bateria.recoger();
+                iterator.remove();
+                mostrarMensaje("BATERIA RECARGADA");
+            }
+        }
+    }
+
+    private void mostrarMensaje(String mensaje) {
+        mensajeMejora = mensaje;
+        tiempoMensajeMejora = 2.5f;
     }
 
     private void actualizarEnemigos(float delta) {
@@ -262,6 +335,7 @@ public class PantallaJuego implements Screen {
 
     @Override
     public void dispose() {
+        shapeRenderer.dispose();
         explosionSound.dispose();
         gameMusic.dispose();
         naveTexture.dispose();
