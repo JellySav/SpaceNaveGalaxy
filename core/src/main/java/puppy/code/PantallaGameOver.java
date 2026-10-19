@@ -5,24 +5,29 @@ import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.utils.ScreenUtils;
+import com.badlogic.gdx.utils.viewport.FitViewport;
+import com.badlogic.gdx.utils.viewport.Viewport;
 
 
 public class PantallaGameOver implements Screen {
 
 	private SpaceNavigation game;
 	private OrthographicCamera camera;
+	private Viewport viewport;
 
 	public PantallaGameOver(SpaceNavigation game) {
 		this.game = game;
         
 		camera = new OrthographicCamera();
-		camera.setToOrtho(false, 1200, 800);
+		viewport = new FitViewport(MundoJuego.ANCHO, MundoJuego.ALTO, camera);
+		viewport.apply();
 	}
 
 	@Override
 	public void render(float delta) {
 		ScreenUtils.clear(0, 0, 0.2f, 1);
 
+		viewport.apply();
 		camera.update();
 		game.getBatch().setProjectionMatrix(camera.combined);
 
@@ -50,7 +55,7 @@ public class PantallaGameOver implements Screen {
 
 	@Override
 	public void resize(int width, int height) {
-		camera.setToOrtho(false, width, height);
+		viewport.update(width, height, true);
 		camera.update();
 	}
 

@@ -9,7 +9,6 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Rectangle;
 
 public class Nave4 {
-    private static final int MAX_VIDAS = 3;
     private static final float VELOCIDAD = 260f;
     private static final float TIEMPO_INVULNERABLE = 0.9f;
 
@@ -17,9 +16,8 @@ public class Nave4 {
     private final Sound sonidoHerido;
     private final Sound sonidoDisparo;
     private final Texture texturaBala;
-    private int vidas = 3;
+    private final EstadoVidas estadoVidas = new EstadoVidas(3);
     private float tiempoInvulnerable;
-    private boolean destruida;
     private boolean reparando;
     private int nivelArma = 1;
     private EstrategiaDisparo estrategiaDisparo = new DisparoSimple();
@@ -39,10 +37,11 @@ public class Nave4 {
 
     public void draw(SpriteBatch batch, PantallaJuego juego, float delta) {
         actualizarMovimiento(delta);
-        if (!reparando && Gdx.input.isKeyJustPressed(Input.Keys.SPACE)) {
+        PreferenciasJuego controles = PreferenciasJuego.obtenerInstancia();
+        if (!reparando && Gdx.input.isKeyJustPressed(controles.getTeclaDisparo())) {
             estrategiaDisparo.disparar(sprite.getX() + sprite.getWidth() / 2f,
                     sprite.getY() + sprite.getHeight(), texturaBala, juego::agregarBala);
-            sonidoDisparo.play();
+            sonidoDisparo.play(PreferenciasJuego.obtenerInstancia().getVolumenEfectos());
         }
 
         if (tiempoInvulnerable > 0f) {
@@ -56,22 +55,23 @@ public class Nave4 {
     }
 
     private void actualizarMovimiento(float delta) {
-        if (tiempoInvulnerable > 0f || destruida || reparando) {
+        if (tiempoInvulnerable > 0f || estadoVidas.estaDestruida() || reparando) {
             return;
         }
 
-        float direccionX = (Gdx.input.isKeyPressed(Input.Keys.RIGHT) ? 1f : 0f)
-                - (Gdx.input.isKeyPressed(Input.Keys.LEFT) ? 1f : 0f);
-        float direccionY = (Gdx.input.isKeyPressed(Input.Keys.UP) ? 1f : 0f)
-                - (Gdx.input.isKeyPressed(Input.Keys.DOWN) ? 1f : 0f);
+        PreferenciasJuego controles = PreferenciasJuego.obtenerInstancia();
+        float direccionX = (Gdx.input.isKeyPressed(controles.getTeclaDerecha()) ? 1f : 0f)
+            - (Gdx.input.isKeyPressed(controles.getTeclaIzquierda()) ? 1f : 0f);
+        float direccionY = (Gdx.input.isKeyPressed(controles.getTeclaArriba()) ? 1f : 0f)
+            - (Gdx.input.isKeyPressed(controles.getTeclaAbajo()) ? 1f : 0f);
         float magnitud = (float) Math.sqrt(direccionX * direccionX + direccionY * direccionY);
         if (magnitud > 1f) {
             direccionX /= magnitud;
             direccionY /= magnitud;
         }
 
-        float maxX = Math.max(0f, Gdx.graphics.getWidth() - sprite.getWidth());
-        float maxY = Math.max(0f, Gdx.graphics.getHeight() - sprite.getHeight());
+        float maxX = Math.max(0f, MundoJuego.ANCHO - sprite.getWidth());
+        float maxY = Math.max(0f, MundoJuego.ALTO - sprite.getHeight());
         sprite.setPosition(
                 Math.max(0f, Math.min(maxX, sprite.getX() + direccionX * VELOCIDAD * delta)),
                 Math.max(0f, Math.min(maxY, sprite.getY() + direccionY * VELOCIDAD * delta)));
@@ -80,13 +80,19 @@ public class Nave4 {
     public boolean checkCollision(Enemigo enemigo) {
         if (tiempoInvulnerable <= 0f && enemigo.estaActivo()
                 && enemigo.getArea().overlaps(sprite.getBoundingRectangle())) {
-            vidas--;
-            tiempoInvulnerable = TIEMPO_INVULNERABLE;
-            sonidoHerido.play();
-            destruida = vidas <= 0;
+            recibirDano();
             return true;
         }
         return false;
+    }
+
+    public boolean recibirDano() {
+        if (tiempoInvulnerable > 0f || !estadoVidas.recibirDano()) {
+            return false;
+        }
+        tiempoInvulnerable = TIEMPO_INVULNERABLE;
+        sonidoHerido.play(PreferenciasJuego.obtenerInstancia().getVolumenEfectos());
+        return true;
     }
 
     public void setNivelArma(int nivel) {
@@ -101,7 +107,7 @@ public class Nave4 {
     }
 
     public boolean estaDestruido() {
-        return destruida;
+        return estadoVidas.estaDestruida();
     }
 
     public boolean estaHerido() {
@@ -109,7 +115,7 @@ public class Nave4 {
     }
 
     public int getVidas() {
-        return vidas;
+        return estadoVidas.getVidas();
     }
 
     public Rectangle getArea() {
@@ -125,19 +131,15 @@ public class Nave4 {
     }
 
     public void reparar() {
-        if (puedeReparar()) {
-            vidas++;
-            destruida = false;
-        }
+        estadoVidas.reparar();
     }
 
     public boolean puedeReparar() {
-        return vidas < MAX_VIDAS;
+        return estadoVidas.puedeReparar();
     }
 
     public void setVidas(int vidas) {
-        this.vidas = Math.max(0, Math.min(MAX_VIDAS, vidas));
-        destruida = this.vidas == 0;
+        estadoVidas.establecerVidas(vidas);
     }
 
     public int getNivelArma() {

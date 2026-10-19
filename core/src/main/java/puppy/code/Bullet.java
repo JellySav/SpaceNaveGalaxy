@@ -1,9 +1,9 @@
 package puppy.code;
 
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.math.Rectangle;
 
 
 public class Bullet {
@@ -21,10 +21,10 @@ public class Bullet {
 	    }
 	    public void update(float delta) {
 	        spr.setPosition(spr.getX()+xSpeed * delta, spr.getY()+ySpeed * delta);
-	        if (spr.getX() < 0 || spr.getX()+spr.getWidth() > Gdx.graphics.getWidth()) {
+	        if (spr.getX() < 0 || spr.getX()+spr.getWidth() > MundoJuego.ANCHO) {
 	            destroyed = true;
 	        }
-	        if (spr.getY() < 0 || spr.getY()+spr.getHeight() > Gdx.graphics.getHeight()) {
+	        if (spr.getY() < 0 || spr.getY()+spr.getHeight() > MundoJuego.ALTO) {
 	        	destroyed = true;
 	        }
 	        
@@ -32,6 +32,10 @@ public class Bullet {
 	    
 	    public void draw(SpriteBatch batch) {
 	    	spr.draw(batch);
+	    }
+
+	    public Rectangle getArea() {
+	        return spr.getBoundingRectangle();
 	    }
 	    
 	    public void update() {

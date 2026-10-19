@@ -4,7 +4,6 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Rectangle;
-import com.badlogic.gdx.Gdx;
 
 public abstract class Enemigo implements ObjetivoDisparo {
     private final Sprite sprite;
@@ -15,6 +14,7 @@ public abstract class Enemigo implements ObjetivoDisparo {
     private float velocidadX;
     private float velocidadY;
     private int resistencia;
+    private final int resistenciaMaxima;
     private boolean activo = true;
 
     protected Enemigo(Texture textura, float x, float y, float ancho, float alto,
@@ -30,6 +30,7 @@ public abstract class Enemigo implements ObjetivoDisparo {
         this.velocidadX = velocidadX;
         this.velocidadY = velocidadY;
         this.resistencia = resistencia;
+        resistenciaMaxima = resistencia;
         sprite.setSize(ancho, alto);
         sprite.setPosition(x, y);
     }
@@ -64,7 +65,7 @@ public abstract class Enemigo implements ObjetivoDisparo {
     }
 
     public final void update() {
-        actualizar(1f / 60f, Gdx.graphics.getWidth(), Gdx.graphics.getHeight(),
+        actualizar(1f / 60f, MundoJuego.ANCHO, MundoJuego.ALTO,
                 getCentroX(), getCentroY());
     }
 
@@ -103,6 +104,10 @@ public abstract class Enemigo implements ObjetivoDisparo {
 
     public final boolean estaDestruido() {
         return !activo;
+    }
+
+    public final float getFraccionResistencia() {
+        return Math.max(0f, (float) resistencia / resistenciaMaxima);
     }
 
     protected final float getVelocidadX() {

@@ -58,6 +58,16 @@ public enum SectorGalactico {
         return ronda == rondaInicial;
     }
 
+    public boolean esRondaDeJefe(int ronda) {
+        if (this == CINTURON_DE_VELA) {
+            return ronda == 2;
+        }
+        if (this == NEBULOSA_DE_ION) {
+            return ronda == 4;
+        }
+        return ronda == 5 || (ronda >= 8 && (ronda - 8) % 3 == 0);
+    }
+
     public String getNombre() {
         return nombre;
     }

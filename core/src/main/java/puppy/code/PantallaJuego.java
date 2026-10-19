@@ -17,12 +17,15 @@ import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Rectangle;
+import com.badlogic.gdx.utils.viewport.FitViewport;
+import com.badlogic.gdx.utils.viewport.Viewport;
 
 public class PantallaJuego implements Screen {
     private static final int CANTIDAD_ESTRELLAS = 90;
 
     private final SpaceNavigation game;
     private final OrthographicCamera camera;
+    private final Viewport viewport;
     private final SpriteBatch batch;
     private final Sound explosionSound;
     private final Music gameMusic;
@@ -33,6 +36,8 @@ public class PantallaJuego implements Screen {
     private final Sound bulletSound;
     private final List<Enemigo> enemigos = new ArrayList<>();
     private final List<Bullet> balas = new ArrayList<>();
+    private final List<ProyectilHostil> proyectilesHostiles = new ArrayList<>();
+    private final IndiceEspacial indiceEnemigos = new IndiceEspacial(128f);
     private final List<BateriaEnergia> baterias = new ArrayList<>();
     private final ProgresionMejoras progresion = ProgresionMejoras.obtenerInstancia();
     private final ShapeRenderer shapeRenderer = new ShapeRenderer();
@@ -47,6 +52,7 @@ public class PantallaJuego implements Screen {
     private final int cantAsteroides;
     private int score;
     private Nave4 nave;
+    private JefeSector jefeSector;
     private ApoyoNave aliado;
     private TecnicoExtravehicular tecnico;
     private float tiempoMensajeMejora;
@@ -69,11 +75,12 @@ public class PantallaJuego implements Screen {
 
         batch = game.getBatch();
         camera = new OrthographicCamera();
-        camera.setToOrtho(false, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+        viewport = new FitViewport(MundoJuego.ANCHO, MundoJuego.ALTO, camera);
+        viewport.apply();
         explosionSound = Gdx.audio.newSound(Gdx.files.internal("explosion.ogg"));
         gameMusic = Gdx.audio.newMusic(Gdx.files.internal("piano-loops.wav"));
         gameMusic.setLooping(true);
-        gameMusic.setVolume(0.5f);
+        gameMusic.setVolume(game.getPreferencias().getVolumenMusica());
 
         naveTexture = new Texture(Gdx.files.internal("MainShip3.png"));
         bulletTexture = new Texture(Gdx.files.internal("Rocket2.png"));
@@ -81,8 +88,8 @@ public class PantallaJuego implements Screen {
         naveHitSound = Gdx.audio.newSound(Gdx.files.internal("hurt.ogg"));
         bulletSound = Gdx.audio.newSound(Gdx.files.internal("pop-sound.mp3"));
 
-        crearCampoEstelar(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
-        nave = new Nave4(Gdx.graphics.getWidth() / 2 - 22, 30, naveTexture,
+        crearCampoEstelar(MundoJuego.ANCHO, MundoJuego.ALTO);
+        nave = new Nave4((int) (MundoJuego.ANCHO / 2f - 22f), 30, naveTexture,
                 naveHitSound, bulletTexture, bulletSound);
         nave.setVidas(vidas);
         nave.setNivelArma(progresion.getNivelArma());
@@ -93,9 +100,8 @@ public class PantallaJuego implements Screen {
     }
 
     private void crearEnemigos() {
-        Random random = new Random();
-        float anchoMundo = Gdx.graphics.getWidth();
-        float altoMundo = Gdx.graphics.getHeight();
+        float anchoMundo = MundoJuego.ANCHO;
+        float altoMundo = MundoJuego.ALTO;
         for (int i = 0; i < cantAsteroides; i++) {
             float size = 20f + random.nextInt(10);
             float x = random.nextFloat() * Math.max(1f, anchoMundo - size * 2f);
@@ -129,23 +135,49 @@ public class PantallaJuego implements Screen {
                     .resistencia(resistencia)
                     .construir(naveTexture));
         }
+
+                if (sector.esRondaDeJefe(ronda)) {
+                    float tamanoJefe = Math.min(150f, anchoMundo * 0.2f);
+                    float xJefe = (anchoMundo - tamanoJefe) / 2f;
+                    float yJefe = altoMundo - tamanoJefe - 105f;
+                    int resistenciaJefe = 12 + ronda * 2
+                        + sector.getResistenciaAlienAdicional() * 4;
+                    jefeSector = (JefeSector) new EnemigoBuilder()
+                        .tipo(EnemigoBuilder.Tipo.JEFE)
+                        .posicion(xJefe, yJefe)
+                        .tamano(tamanoJefe)
+                        .velocidad(34f * sector.getFactorDificultad(), 0f)
+                        .resistencia(resistenciaJefe)
+                        .sector(sector)
+                        .construir(naveTexture, bulletTexture);
+                    enemigos.add(jefeSector);
+                    tiempoMensajeSector = 6f;
+                    mensajeMejora = "JEFE DE SECTOR: " + jefeSector.getNombre();
+                    tiempoMensajeMejora = 6f;
+                }
     }
 
     private void dibujaEncabezado() {
         BitmapFont font = game.getFont();
-        float alto = Gdx.graphics.getHeight();
+        float alto = MundoJuego.ALTO;
         font.getData().setScale(1.25f);
         font.setColor(0.88f, 0.93f, 0.94f, 1f);
         font.draw(batch, "VIDAS " + nave.getVidas() + "   RONDA " + ronda
                 + "   ARMA " + nave.getNombreArma(), 18f, alto - 20f);
-        font.draw(batch, "RECORD " + game.getHighScore(), Gdx.graphics.getWidth() - 315f, alto - 20f);
-        font.draw(batch, "PUNTOS " + score, Gdx.graphics.getWidth() - 155f, alto - 20f);
+        font.draw(batch, "RECORD " + game.getHighScore(), MundoJuego.ANCHO - 315f, alto - 20f);
+        font.draw(batch, "PUNTOS " + score, MundoJuego.ANCHO - 155f, alto - 20f);
         font.draw(batch, "BATERIAS " + progresion.getBaterias() + "   R: REPARAR",
             18f, alto - 70f);
+        font.draw(batch, "NUCLEOS " + progresion.getNucleosJefe(), 18f, alto - 95f);
         font.draw(batch, "SECTOR " + sector.getNombre().toUpperCase(), 18f, alto - 120f);
+        if (jefeSector != null && jefeSector.estaActivo()) {
+            font.setColor(1f, 0.55f, 0.42f, 1f);
+            font.draw(batch, jefeSector.getNombre(), MundoJuego.ANCHO / 2f - 120f, alto - 65f);
+            font.setColor(0.88f, 0.93f, 0.94f, 1f);
+        }
         if (tecnico != null) {
             font.draw(batch, "TECNICO EXTERIOR " + (int) Math.ceil(tiempoReparacion) + " s",
-                18f, alto - 95f);
+                18f, alto - 145f);
         }
         font.getData().setScale(1f);
 
@@ -158,7 +190,7 @@ public class PantallaJuego implements Screen {
             font.getData().setScale(2f);
             font.setColor(1f, 0.78f, 0.35f, 1f);
             font.draw(batch, mensajeMejora,
-                    Gdx.graphics.getWidth() / 2f - 110f, Gdx.graphics.getHeight() * 0.72f);
+                    MundoJuego.ANCHO / 2f - 110f, MundoJuego.ALTO * 0.72f);
             font.getData().setScale(1f);
             font.setColor(1f, 1f, 1f, 1f);
         }
@@ -166,10 +198,10 @@ public class PantallaJuego implements Screen {
                 font.getData().setScale(1.5f);
                 font.setColor(0.55f, 0.9f, 1f, 1f);
                 font.draw(batch, "NUEVA ETAPA: " + sector.getNombre(),
-                    Gdx.graphics.getWidth() / 2f - 190f, Gdx.graphics.getHeight() * 0.64f);
+                    MundoJuego.ANCHO / 2f - 190f, MundoJuego.ALTO * 0.64f);
                 font.getData().setScale(1f);
                 font.draw(batch, sector.getNarrativa(),
-                    Gdx.graphics.getWidth() / 2f - 300f, Gdx.graphics.getHeight() * 0.60f);
+                    MundoJuego.ANCHO / 2f - 300f, MundoJuego.ALTO * 0.60f);
                 font.setColor(1f, 1f, 1f, 1f);
             }
     }
@@ -185,12 +217,19 @@ public class PantallaJuego implements Screen {
         Gdx.gl.glClearColor(sector.getFondoRojo(), sector.getFondoVerde(),
             sector.getFondoAzul(), 1f);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+        viewport.apply();
         camera.update();
         batch.setProjectionMatrix(camera.combined);
         dibujarCampoEstelar();
         batch.begin();
 
         actualizarEnemigos(frameDelta);
+        indiceEnemigos.reconstruir(enemigos);
+        if (jefeSector != null && jefeSector.estaActivo()) {
+            jefeSector.actualizarAtaque(frameDelta, nave.getCentroX(), nave.getCentroY(),
+                proyectilesHostiles::add);
+        }
+        actualizarProyectilesHostiles(frameDelta);
         if (aliado != null) {
             aliado.actualizar(frameDelta, nave.getCentroX(), nave.getCentroY(), enemigos,
                     bulletTexture, this::agregarBala);
@@ -201,6 +240,9 @@ public class PantallaJuego implements Screen {
 
         for (Bullet bala : balas) {
             bala.draw(batch);
+        }
+        for (ProyectilHostil proyectil : proyectilesHostiles) {
+            proyectil.dibujar(batch);
         }
         nave.draw(batch, this, frameDelta);
         actualizarBaterias(frameDelta);
@@ -214,16 +256,26 @@ public class PantallaJuego implements Screen {
             Enemigo enemigo = enemigos.get(i);
             enemigo.dibujar(batch);
             if (nave.checkCollision(enemigo)) {
-                enemigos.remove(i);
+                if (!(enemigo instanceof JefeSector)) {
+                    enemigos.remove(i);
+                }
             }
         }
         dibujaEncabezado();
         batch.end();
+        dibujarBarraJefe();
         if (tecnico != null) {
             shapeRenderer.setProjectionMatrix(camera.combined);
             shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
             tecnico.dibujar(shapeRenderer, nave.getCentroX(), nave.getCentroY());
             shapeRenderer.end();
+        }
+
+        if (!nave.estaDestruido()
+                && (Gdx.input.isKeyJustPressed(Input.Keys.P)
+                || Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE))) {
+            game.setScreen(new PantallaPausa(game, this));
+            return;
         }
 
         if (nave.estaDestruido()) {
@@ -243,13 +295,17 @@ public class PantallaJuego implements Screen {
         for (int i = balas.size() - 1; i >= 0; i--) {
             Bullet bala = balas.get(i);
             bala.update(delta);
-            for (int j = enemigos.size() - 1; j >= 0; j--) {
-                Enemigo enemigo = enemigos.get(j);
+            List<ObjetivoDisparo> objetivos = indiceEnemigos.consultar(bala.getArea());
+            for (ObjetivoDisparo objetivo : objetivos) {
+                if (!(objetivo instanceof Enemigo)) {
+                    continue;
+                }
+                Enemigo enemigo = (Enemigo) objetivo;
                 if (bala.checkCollision(enemigo)) {
                     registrarImpacto();
                     if (enemigo.estaDestruido()) {
-                        score += enemigo instanceof AlienEnemigo ? 25 : 10;
-                        explosionSound.play(0.5f);
+                        registrarDerrota(enemigo);
+                        explosionSound.play(game.getPreferencias().getVolumenEfectos());
                         if (enemigo instanceof AlienEnemigo) {
                             boolean mejoraLista = progresion.puedeInstalarMejora();
                             progresion.registrarAlienDerrotado();
@@ -262,7 +318,10 @@ public class PantallaJuego implements Screen {
                             baterias.add(new BateriaEnergia(area.x + area.width / 2f,
                                     area.y + area.height / 2f, bulletTexture));
                         }
-                        enemigos.remove(j);
+                        enemigos.remove(enemigo);
+                        if (enemigo == jefeSector) {
+                            jefeSector = null;
+                        }
                     }
                     break;
                 }
@@ -277,6 +336,51 @@ public class PantallaJuego implements Screen {
         boolean mejoraLista = progresion.puedeInstalarMejora();
         progresion.registrarImpacto();
         notificarMejoraLista(mejoraLista);
+    }
+
+    private void registrarDerrota(Enemigo enemigo) {
+        if (enemigo instanceof JefeSector) {
+            score += 250;
+            progresion.registrarJefeDerrotado();
+            mostrarMensaje("JEFE DERROTADO: NUCLEO Y BATERIA RECUPERADOS");
+        } else if (enemigo instanceof AlienEnemigo) {
+            score += 25;
+            boolean mejoraLista = progresion.puedeInstalarMejora();
+            progresion.registrarAlienDerrotado();
+            notificarMejoraLista(mejoraLista);
+        } else {
+            score += 10;
+        }
+    }
+
+    private void actualizarProyectilesHostiles(float delta) {
+        for (Iterator<ProyectilHostil> iterator = proyectilesHostiles.iterator(); iterator.hasNext();) {
+            ProyectilHostil proyectil = iterator.next();
+            proyectil.actualizar(delta, MundoJuego.ANCHO, MundoJuego.ALTO);
+            if (proyectil.toca(nave.getArea())) {
+                nave.recibirDano();
+                proyectil.destruir();
+            }
+            if (!proyectil.estaActivo()) {
+                iterator.remove();
+            }
+        }
+    }
+
+    private void dibujarBarraJefe() {
+        if (jefeSector == null || !jefeSector.estaActivo()) {
+            return;
+        }
+        float ancho = Math.min(420f, MundoJuego.ANCHO * 0.5f);
+        float x = (MundoJuego.ANCHO - ancho) / 2f;
+        float y = MundoJuego.ALTO - 88f;
+        shapeRenderer.setProjectionMatrix(camera.combined);
+        shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
+        shapeRenderer.setColor(0.08f, 0.1f, 0.14f, 1f);
+        shapeRenderer.rect(x, y, ancho, 12f);
+        shapeRenderer.setColor(0.91f, 0.24f, 0.31f, 1f);
+        shapeRenderer.rect(x, y, ancho * jefeSector.getFraccionResistencia(), 12f);
+        shapeRenderer.end();
     }
 
     private void gestionarInstalacionMejora() {
@@ -371,7 +475,7 @@ public class PantallaJuego implements Screen {
         Iterator<Enemigo> iterator = enemigos.iterator();
         while (iterator.hasNext()) {
             Enemigo enemigo = iterator.next();
-            enemigo.actualizar(delta, Gdx.graphics.getWidth(), Gdx.graphics.getHeight(),
+                enemigo.actualizar(delta, MundoJuego.ANCHO, MundoJuego.ALTO,
                     nave.getCentroX(), nave.getCentroY());
             if (enemigo.estaDestruido()) {
                 iterator.remove();
@@ -383,6 +487,10 @@ public class PantallaJuego implements Screen {
         return balas.add(bala);
     }
 
+    public void setVolumenMusica(float volumen) {
+        gameMusic.setVolume(volumen);
+    }
+
     @Override
     public void show() {
         gameMusic.play();
@@ -390,9 +498,9 @@ public class PantallaJuego implements Screen {
 
     @Override
     public void resize(int width, int height) {
-        camera.setToOrtho(false, width, height);
+        viewport.update(width, height, true);
         camera.update();
-        crearCampoEstelar(width, height);
+        crearCampoEstelar(MundoJuego.ANCHO, MundoJuego.ALTO);
     }
 
     @Override
@@ -405,6 +513,7 @@ public class PantallaJuego implements Screen {
 
     @Override
     public void hide() {
+        gameMusic.pause();
     }
 
     @Override

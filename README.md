@@ -6,11 +6,14 @@ Prototipo 2D de supervivencia espacial hecho con [libGDX](https://libgdx.com/). 
 
 - Flechas: mantener pulsada una dirección mueve la nave de forma continua.
 - Menú: `Enter` o clic en «Iniciar partida» comienza; `C` o «Controles y reglas» abre las instrucciones; `Esc` cierra la aplicación.
-- Controles: `Flechas` mueven la nave y `Espacio` dispara; durante la partida, `R` inicia una reparación si tienes una batería.
+- Controles: `Flechas` + `Espacio`, o `WASD` + `Ctrl izquierdo` según el esquema activo. Durante la partida, `R` inicia una reparación si tienes una batería.
+- `P` o `Esc` pausa; en pausa puedes ajustar música/efectos, alternar flechas/WASD o volver al menú. La partida se congela al pausar.
 - Game over: cualquier tecla o clic inicia una partida nueva.
 - La nave comienza con 3 vidas. Los asteroides valen 10 puntos y los aliens 25; las rondas agregan asteroides y aumentan dificultad.
-- Las mejoras ya no se activan automáticamente: el disparo doble exige ronda 2, 4 impactos, 35 segundos y 1 batería; el triple y el dron exigen ronda 3, 12 impactos, 90 segundos, 2 aliens derrotados y 2 baterías. Pulsa `U` para instalarlas.
+- Las mejoras ya no se activan automáticamente: el disparo doble exige ronda 2, 4 impactos, 35 segundos y 1 batería; el triple y el dron exigen ronda 3, 12 impactos, 90 segundos, 2 aliens derrotados, 2 baterías y un núcleo de jefe. Pulsa `U` para instalarlas.
 - Desde la ronda 2 aparecen aliens que persiguen la nave y requieren varios impactos. La progresión de armas se conserva entre rondas y reinicia al comenzar otra partida.
+- Jefes de sector: rondas 2, 4 y 5. Sus patrones dependen del sector y al derrotarlos dejan un núcleo y una batería garantizados; el disparo triple requiere un núcleo.
+- Récord persistente, controles alternativos y volumen de música/efectos se guardan en preferencias locales. `P` o `Esc` abre pausa.
 - Los enemigos pueden soltar baterías; se pueden guardar hasta 3. Pulsa `R` para salir de la nave durante 4 segundos y recuperar una vida. Mientras el técnico trabaja, la nave no se mueve ni dispara, pero los enemigos y aliados siguen activos.
 - El récord solo se conserva mientras la aplicación permanece abierta.
 

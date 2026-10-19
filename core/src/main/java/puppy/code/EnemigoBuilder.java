@@ -5,7 +5,8 @@ import com.badlogic.gdx.graphics.Texture;
 public class EnemigoBuilder {
     public enum Tipo {
         ASTEROIDE,
-        ALIEN
+        ALIEN,
+        JEFE
     }
 
     private Tipo tipo;
@@ -15,6 +16,7 @@ public class EnemigoBuilder {
     private float velocidadX;
     private float velocidadY;
     private int resistencia = 1;
+    private SectorGalactico sector;
     private boolean posicionConfigurada;
     private boolean velocidadConfigurada;
     private boolean tamanoConfigurado;
@@ -51,13 +53,29 @@ public class EnemigoBuilder {
         return this;
     }
 
+    public EnemigoBuilder sector(SectorGalactico sector) {
+        this.sector = sector;
+        return this;
+    }
+
     public Enemigo construir(Texture textura) {
+        return construir(textura, null);
+    }
+
+    public Enemigo construir(Texture textura, Texture texturaProyectil) {
         validarConfiguracion();
         if (textura == null) {
             throw new IllegalArgumentException("La textura del enemigo es obligatoria");
         }
         if (tipo == Tipo.ASTEROIDE) {
             return new AsteroideEnemigo(x, y, tamano, velocidadX, velocidadY, textura);
+        }
+        if (tipo == Tipo.JEFE) {
+            if (sector == null || texturaProyectil == null) {
+                throw new IllegalStateException("El jefe requiere sector y textura de proyectil");
+            }
+            return new JefeSector(x, y, tamano, velocidadX, resistencia, sector,
+                    textura, texturaProyectil);
         }
         return new AlienEnemigo(x, y, tamano,
                 Math.max(Math.abs(velocidadX), Math.abs(velocidadY)), resistencia, textura);
@@ -78,8 +96,11 @@ public class EnemigoBuilder {
         if (tipo == Tipo.ASTEROIDE && !tamanoConfigurado) {
             throw new IllegalStateException("El tamano del asteroide es obligatorio");
         }
-        if (tipo == Tipo.ALIEN && (!resistenciaConfigurada || resistencia <= 0)) {
-            throw new IllegalStateException("La resistencia del alien es obligatoria y debe ser positiva");
+        if (tipo != Tipo.ASTEROIDE && (!resistenciaConfigurada || resistencia <= 0)) {
+            throw new IllegalStateException("La resistencia del enemigo es obligatoria y debe ser positiva");
+        }
+        if (tipo == Tipo.JEFE && !tamanoConfigurado) {
+            throw new IllegalStateException("El tamano del jefe es obligatorio");
         }
     }
 }

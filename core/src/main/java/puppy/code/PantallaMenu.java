@@ -13,6 +13,8 @@ import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.ScreenUtils;
+import com.badlogic.gdx.utils.viewport.FitViewport;
+import com.badlogic.gdx.utils.viewport.Viewport;
 
 public class PantallaMenu implements Screen {
 
@@ -29,6 +31,7 @@ public class PantallaMenu implements Screen {
 
     private final SpaceNavigation game;
     private final OrthographicCamera camera;
+    private final Viewport viewport;
     private final ShapeRenderer shapeRenderer;
     private final Texture shipTexture;
     private final Texture asteroidTexture;
@@ -41,7 +44,8 @@ public class PantallaMenu implements Screen {
     public PantallaMenu(SpaceNavigation game) {
         this.game = game;
         camera = new OrthographicCamera();
-        camera.setToOrtho(false, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+        viewport = new FitViewport(MundoJuego.ANCHO, MundoJuego.ALTO, camera);
+        viewport.apply();
         shapeRenderer = new ShapeRenderer();
         shipTexture = new Texture(Gdx.files.internal("MainShip3.png"));
         asteroidTexture = new Texture(Gdx.files.internal("aGreyMedium4.png"));
@@ -50,6 +54,7 @@ public class PantallaMenu implements Screen {
     @Override
     public void render(float delta) {
         ScreenUtils.clear(COLOR_FONDO);
+        viewport.apply();
         camera.update();
         updateButtonBounds();
 
@@ -95,11 +100,13 @@ public class PantallaMenu implements Screen {
 
         drawButtonLabel(batch, playButton, "INICIAR PARTIDA", COLOR_TEXTO);
         drawButtonLabel(batch, controlsButton, "CONTROLES Y REGLAS", COLOR_TEXTO);
-        drawCentered(batch, "FLECHAS  MOVER   /   ESPACIO  DISPARAR", centerX,
+        drawCentered(batch, game.getPreferencias().usaWASD()
+                ? "WASD  MOVER   /   CTRL  DISPARAR"
+                : "FLECHAS  MOVER   /   ESPACIO  DISPARAR", centerX,
                 height * 0.09f, 0.95f, COLOR_APAGADO);
 
         if (game.getHighScore() > 0) {
-            drawCentered(batch, "RECORD DE SESION: " + game.getHighScore(), centerX,
+            drawCentered(batch, "RECORD GUARDADO: " + game.getHighScore(), centerX,
                     height * 0.045f, 0.85f, COLOR_SECUNDARIO);
         }
     }
@@ -113,11 +120,11 @@ public class PantallaMenu implements Screen {
         drawCentered(batch, "Controles sencillos, reflejos y una nave que no se detiene.",
                 centerX, height * 0.74f, 1f, COLOR_APAGADO);
 
-        drawControlRow(batch, "FLECHAS", "Mantener pulsado mueve la nave en esa direccion.",
+        drawControlRow(batch, "FLECHAS / WASD", "El esquema se cambia en pausa; mantener mueve.",
                 width * 0.25f, width * 0.43f, height * 0.61f);
         drawControlRow(batch, "ESPACIO", "Dispara hacia arriba; apunta y evita los asteroides.",
                 width * 0.25f, width * 0.43f, height * 0.52f);
-        drawControlRow(batch, "ENTER / R / U", "Enter empieza; R repara; U instala mejoras ganadas.",
+        drawControlRow(batch, "P / R / U", "P pausa; R repara; U instala mejoras ganadas.",
                 width * 0.25f, width * 0.43f, height * 0.43f);
 
         drawText(batch, "OBJETIVO", width * 0.25f, height * 0.38f, 1.1f, COLOR_SECUNDARIO);
@@ -127,7 +134,11 @@ public class PantallaMenu implements Screen {
             width * 0.25f, height * 0.28f, 0.95f, COLOR_TEXTO);
         drawText(batch, "Ronda 2: aliens persiguen; enemigos pueden soltar baterias.",
             width * 0.25f, height * 0.23f, 0.95f, COLOR_APAGADO);
-        drawText(batch, "Doble: R2, 4 impactos, 35s y 1 bateria. Triple/dron: R3, 12 impactos, 2 aliens, 90s y 2 baterias; U instala.",
+        drawText(batch, "En ronda 2, 4 y 5 aparece un jefe con ataque propio y nucleo de mejora.",
+            width * 0.25f, height * 0.21f, 0.95f, COLOR_APAGADO);
+        drawText(batch, "Jefes R2/R4/R5: su nucleo es necesario para triple + dron.",
+            width * 0.25f, height * 0.20f, 0.95f, COLOR_SECUNDARIO);
+        drawText(batch, "Doble: R2, 4 impactos, 35s y 1 bateria. Triple: R3, 12 impactos, 2 aliens, 90s, 2 baterias y 1 nucleo; U instala.",
             width * 0.25f, height * 0.18f, 0.95f, COLOR_ACENTO);
 
         drawButtonLabel(batch, playButton, "JUGAR", COLOR_TEXTO);
@@ -219,7 +230,7 @@ public class PantallaMenu implements Screen {
                 startGame();
             } else if (Gdx.input.justTouched()) {
                 pointer.set(Gdx.input.getX(), Gdx.input.getY(), 0f);
-                camera.unproject(pointer);
+                viewport.unproject(pointer);
                 if (playButton.contains(pointer.x, pointer.y)) {
                     startGame();
                 } else if (controlsButton.contains(pointer.x, pointer.y)) {
@@ -232,7 +243,7 @@ public class PantallaMenu implements Screen {
             startGame();
         } else if (Gdx.input.justTouched()) {
             pointer.set(Gdx.input.getX(), Gdx.input.getY(), 0f);
-            camera.unproject(pointer);
+            viewport.unproject(pointer);
             if (playButton.contains(pointer.x, pointer.y)) {
                 startGame();
             } else if (backButton.contains(pointer.x, pointer.y)) {
@@ -253,7 +264,7 @@ public class PantallaMenu implements Screen {
 
     @Override
     public void resize(int width, int height) {
-        camera.setToOrtho(false, width, height);
+        viewport.update(width, height, true);
         camera.update();
     }
 
