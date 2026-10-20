@@ -12,10 +12,9 @@ Prototipo 2D de supervivencia espacial hecho con [libGDX](https://libgdx.com/). 
 - La nave comienza con 3 vidas. Los asteroides valen 10 puntos y los aliens 25; las rondas agregan asteroides y aumentan dificultad.
 - Las mejoras ya no se activan automáticamente: el disparo doble exige ronda 2, 4 impactos, 35 segundos y 1 batería; el triple y el dron exigen ronda 3, 12 impactos, 90 segundos, 2 aliens derrotados, 2 baterías y un núcleo de jefe. Pulsa `U` para instalarlas.
 - Desde la ronda 2 aparecen aliens que persiguen la nave y requieren varios impactos. La progresión de armas se conserva entre rondas y reinicia al comenzar otra partida.
-- Jefes de sector: rondas 2, 4 y 5. Sus patrones dependen del sector y al derrotarlos dejan un núcleo y una batería garantizados; el disparo triple requiere un núcleo.
+- Jefes de sector: rondas 2, 4 y 5; en Khepri regresan cada tres rondas a partir de la 8. Sus patrones dependen del sector y dejan un núcleo y una batería; el disparo triple requiere un núcleo.
 - Récord persistente, controles alternativos y volumen de música/efectos se guardan en preferencias locales. `P` o `Esc` abre pausa.
 - Los enemigos pueden soltar baterías; se pueden guardar hasta 3. Pulsa `R` para salir de la nave durante 4 segundos y recuperar una vida. Mientras el técnico trabaja, la nave no se mueve ni dispara, pero los enemigos y aliados siguen activos.
-- El récord solo se conserva mientras la aplicación permanece abierta.
 
 ## Recorrido galáctico
 
@@ -37,32 +36,24 @@ Con un JDK compatible, ejecuta `./gradlew lwjgl3:run`. Para compilar todos los m
 
 ## Arquitectura y patrones
 
-- **Clase abstracta y Template Method:** `Enemigo` comparte estado, impactos, límites y el ciclo final `actualizar`; `AsteroideEnemigo` y `AlienEnemigo` especializan su comportamiento.
+- **Clase abstracta y Template Method:** `Enemigo` comparte estado, impactos, límites y el ciclo final `actualizar`; `AsteroideEnemigo`, `AlienEnemigo` y `JefeSector` especializan su comportamiento.
 - **Interfaz:** `ObjetivoDisparo` permite que ambos enemigos reciban impactos a través de `Bullet`, sin acoplar el proyectil a una clase concreta. `ApoyoNave` define además el contrato extensible de aliados.
 - **Strategy:** `EstrategiaDisparo` intercambia disparo simple, doble o triple sin cambiar el control de la nave.
-- **Singleton:** `ProgresionMejoras` conserva impactos, nivel del arma y baterías entre rondas; se reinicia al comenzar otra partida.
-- **Builder:** `EnemigoBuilder` configura tipo, posición, velocidad y resistencia al crear enemigos por ronda.
+- **Singleton:** `ProgresionMejoras` conserva progreso durante la partida; `PreferenciasJuego` conserva récord, volumen y controles entre ejecuciones.
+- **Builder:** `EnemigoBuilder` configura tipo, posición, velocidad y resistencia para asteroides, aliens y jefes.
+- **Strategy:** `AtaqueJefe` selecciona patrones dirigidos, en abanico o circulares según el sector.
 - **Encapsulamiento:** entidades mantienen sus datos internos privados o protegidos y exponen operaciones de juego en vez de permitir cambios arbitrarios desde la pantalla.
 - **Aliado:** `DronEscolta` implementa `ApoyoNave`; se desbloquea junto con el disparo triple y busca objetivos para atacar.
 
-## Recorrido galáctico
-
-- Rondas 1-2: Cinturón de Vela, primera señal de auxilio y dificultad inicial.
-- Rondas 3-4: Nebulosa de Ion, más aliens y mayor velocidad.
-- Ronda 5 en adelante: Frontera de Khepri, aliens más resistentes y más baterías.
-
-Cada salto muestra una breve transmisión, cambia el fondo y el color de las estrellas, y ajusta la dificultad y la probabilidad de encontrar recursos.
-
 ## Estado y límites
 
-Es una base didáctica, no un juego listo para publicar. No hay pruebas automatizadas, persistencia del récord, pausa, ajustes ni soporte de mando. El movimiento de la nave, enemigos y proyectiles usa `delta`; las cámaras responden al cambio de tamaño, pero no mantienen una relación de aspecto fija. Las colisiones son simples y los impactos comparan proyectiles con enemigos, por lo que conviene añadir una estructura espacial si ambos grupos crecen mucho.
+Es una base didáctica, no un juego listo para publicar. Tiene siete pruebas unitarias para vidas, progreso, sectores, Builder, grilla y cálculo de viewport; aún faltan pruebas integrales de jefes, daño por proyectiles hostiles y preferencias persistentes. El mundo lógico es 1200×800 y `FitViewport` mantiene la proporción en ventanas distintas. Las colisiones de disparo usan una grilla espacial; conviene medirla si aumenta mucho el número de enemigos.
 
 ## Mejoras recomendadas
 
-1. Basar movimiento, disparos y estados temporales en `delta`.
-2. Definir una relación de aspecto fija con `Viewport` y probar ventanas de distintos tamaños.
-3. Añadir pruebas para colisiones, vidas y progresión de rondas.
-4. Persistir el récord y añadir pausa, opciones de audio y controles configurables.
-5. Reducir el costo de colisiones si crece el número de asteroides.
+1. Ampliar tests a ataques y recompensas de jefes, pausa y persistencia de preferencias.
+2. Probar visualmente 16:9, 4:3 y ventanas pequeñas; el viewport mantiene proporción con bandas de letterboxing.
+3. Extraer oleadas y progresión de `PantallaJuego` para reducir responsabilidades de la pantalla.
+4. Agregar perfiles de dificultad y patrones de jefe configurables por sector.
 
 Actualmente se puede reutilizar el núcleo del juego y el lanzador de escritorio. Android, iOS y web no están configurados; cada plataforma requiere su propio módulo de lanzamiento y validación de entradas, audio y empaquetado.

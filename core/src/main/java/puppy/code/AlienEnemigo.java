@@ -2,7 +2,7 @@ package puppy.code;
 
 import com.badlogic.gdx.graphics.Texture;
 
-public class AlienEnemigo extends Enemigo implements ObjetivoDisparo {
+public class AlienEnemigo extends Enemigo {
     private final float velocidadPersecucion;
     private float tiempoDireccion;
 

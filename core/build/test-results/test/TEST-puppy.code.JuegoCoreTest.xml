@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="puppy.code.JuegoCoreTest" tests="7" skipped="0" failures="0" errors="0" timestamp="2026-10-19T23:12:42" hostname="codespaces-699aeb" time="0.024">
+<testsuite name="puppy.code.JuegoCoreTest" tests="7" skipped="0" failures="0" errors="0" timestamp="2026-10-19T23:49:03" hostname="codespaces-699aeb" time="0.028">
   <properties/>
-  <testcase name="mejoraDobleRequiereTiempoImpactosRondaYBateria" classname="puppy.code.JuegoCoreTest" time="0.004"/>
+  <testcase name="mejoraDobleRequiereTiempoImpactosRondaYBateria" classname="puppy.code.JuegoCoreTest" time="0.009"/>
   <testcase name="viewportConservaMundoYCentraVentanasDeOtrasProporciones" classname="puppy.code.JuegoCoreTest" time="0.005"/>
   <testcase name="builderRechazaEnemigosSinConfiguracionMinima" classname="puppy.code.JuegoCoreTest" time="0.003"/>
   <testcase name="estadoVidasLimitaDanoYReparacion" classname="puppy.code.JuegoCoreTest" time="0.001"/>
   <testcase name="sectoresMarcanRondasDeJefeYEscalan" classname="puppy.code.JuegoCoreTest" time="0.001"/>
-  <testcase name="mejoraTripleExigeNucleoDeJefeYConsumeRecursos" classname="puppy.code.JuegoCoreTest" time="0.0"/>
-  <testcase name="indiceEspacialDevuelveSoloObjetivosQueSolapan" classname="puppy.code.JuegoCoreTest" time="0.003"/>
+  <testcase name="mejoraTripleExigeNucleoDeJefeYConsumeRecursos" classname="puppy.code.JuegoCoreTest" time="0.001"/>
+  <testcase name="indiceEspacialDevuelveSoloObjetivosQueSolapan" classname="puppy.code.JuegoCoreTest" time="0.002"/>
   <system-out><![CDATA[]]></system-out>
   <system-err><![CDATA[]]></system-err>
 </testsuite>
