@@ -4,10 +4,10 @@ public enum SectorGalactico {
     CINTURON_DE_VELA(1, "Cinturon de Vela",
             "Una baliza de auxilio marca el primer salto. Mantengan la nave operativa.",
             1f, 0, 0, 0f, 0.012f, 0.035f, 0.055f, 0.38f, 0.72f, 0.92f),
-    NEBULOSA_DE_ION(3, "Nebulosa de Ion",
+    NEBULOSA_DE_ION(5, "Nebulosa de Ion",
             "La senal se pierde entre nubes ionizadas. Los aliens refuerzan el bloqueo.",
             1.12f, 1, 0, 0.05f, 0.034f, 0.018f, 0.062f, 0.72f, 0.52f, 0.94f),
-    FRONTERA_DE_KHEPRI(5, "Frontera de Khepri",
+    FRONTERA_DE_KHEPRI(9, "Frontera de Khepri",
             "La ruta atraviesa territorio hostil: mas resistencia y recursos de salvamento.",
             1.25f, 2, 1, 0.1f, 0.065f, 0.022f, 0.024f, 1f, 0.5f, 0.3f);
 
@@ -60,12 +60,19 @@ public enum SectorGalactico {
 
     public boolean esRondaDeJefe(int ronda) {
         if (this == CINTURON_DE_VELA) {
-            return ronda == 2;
-        }
-        if (this == NEBULOSA_DE_ION) {
             return ronda == 4;
         }
-        return ronda == 5 || (ronda >= 8 && (ronda - 8) % 3 == 0);
+        if (this == NEBULOSA_DE_ION) {
+            return ronda == 8;
+        }
+        return ronda >= 12 && ronda % 4 == 0;
+    }
+
+    /** Resistencia del constructor; Enemigo la convierte a vida multiplicando por diez. */
+    public int getResistenciaJefe(int ronda) {
+        if (this == CINTURON_DE_VELA) return 40;
+        if (this == NEBULOSA_DE_ION) return 200;
+        return 300 + Math.max(0, (ronda - 12) / 4) * 30;
     }
 
     public String getNombre() {

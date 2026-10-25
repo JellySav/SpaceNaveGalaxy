@@ -6,6 +6,8 @@ public class EnemigoBuilder {
     public enum Tipo {
         ASTEROIDE,
         ALIEN,
+        ALIEN_EXPLOSIVO,
+        ALIEN_DETONADORA,
         JEFE
     }
 
@@ -76,6 +78,13 @@ public class EnemigoBuilder {
             }
             return new JefeSector(x, y, tamano, velocidadX, resistencia, sector,
                     textura, texturaProyectil);
+        }
+        if (tipo == Tipo.ALIEN_DETONADORA) {
+            return new AlienDetonadora(x,y,tamano,Math.max(Math.abs(velocidadX),Math.abs(velocidadY)),resistencia,textura);
+        }
+        if (tipo == Tipo.ALIEN_EXPLOSIVO) {
+            return new AlienExplosivo(x, y, tamano,
+                    Math.max(Math.abs(velocidadX), Math.abs(velocidadY)), resistencia, textura);
         }
         return new AlienEnemigo(x, y, tamano,
                 Math.max(Math.abs(velocidadX), Math.abs(velocidadY)), resistencia, textura);

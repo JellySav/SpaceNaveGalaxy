@@ -43,54 +43,45 @@ public class JuegoCoreTest {
     }
 
     @Test
-    public void mejoraDobleRequiereTiempoImpactosRondaYBateria() {
-        for (int indice = 0; indice < 4; indice++) {
-            progresion.registrarImpacto();
-        }
-        assertTrue(progresion.registrarBateria());
-        progresion.avanzarTiempo(34f, 2);
-        assertFalse(progresion.puedeInstalarMejora());
-        progresion.avanzarTiempo(1f, 2);
-        assertTrue(progresion.puedeInstalarMejora());
-        assertTrue(progresion.instalarMejora());
-        assertEquals(2, progresion.getNivelArma());
-        assertEquals(0, progresion.getBaterias());
+    public void puntajeDesbloqueaSinConsumirBateriasNiExigirObjetivos() {
+        progresion.registrarBateria();
+        progresion.sumarPuntos(249);
+        assertFalse(progresion.hayMejorasPendientes());
+        progresion.sumarPuntos(1);
+        assertTrue(progresion.hayMejorasPendientes());
+        assertTrue(progresion.elegirMejora(TipoMejora.DOBLE));
+        assertEquals(2,progresion.getNivelArma());
+        assertEquals(1,progresion.getBaterias());
     }
 
     @Test
-    public void mejoraTripleExigeNucleoDeJefeYConsumeRecursos() {
-        for (int indice = 0; indice < 4; indice++) {
-            progresion.registrarImpacto();
-        }
-        progresion.registrarBateria();
-        progresion.avanzarTiempo(35f, 2);
-        assertTrue(progresion.instalarMejora());
-
-        for (int indice = 0; indice < 8; indice++) {
-            progresion.registrarImpacto();
-        }
-        progresion.registrarBateria();
-        progresion.registrarBateria();
-        progresion.registrarAlienDerrotado();
-        progresion.registrarAlienDerrotado();
-        progresion.avanzarTiempo(55f, 3);
-        assertFalse(progresion.puedeInstalarMejora());
-
-        progresion.registrarJefeDerrotado();
-        assertTrue(progresion.puedeInstalarMejora());
-        assertTrue(progresion.instalarMejora());
-        assertEquals(3, progresion.getNivelArma());
-        assertEquals(0, progresion.getNucleosJefe());
-        assertEquals(1, progresion.getBaterias());
+    public void dobleYTripleSonIndependientesYCombinanQuintuple() {
+        progresion.sumarPuntos(750);
+        assertTrue(progresion.elegirMejora(TipoMejora.TRIPLE));
+        assertEquals(3,progresion.getNivelArma());
+        assertFalse(progresion.tieneDron());
+        assertTrue(progresion.elegirMejora(TipoMejora.DOBLE));
+        assertEquals(4,progresion.getNivelArma());
+        assertFalse(TipoMejora.DOBLE.disponible(progresion));
     }
 
     @Test
     public void sectoresMarcanRondasDeJefeYEscalan() {
-        assertTrue(SectorGalactico.CINTURON_DE_VELA.esRondaDeJefe(2));
-        assertTrue(SectorGalactico.NEBULOSA_DE_ION.esRondaDeJefe(4));
-        assertTrue(SectorGalactico.FRONTERA_DE_KHEPRI.esRondaDeJefe(5));
-        assertEquals(SectorGalactico.NEBULOSA_DE_ION, SectorGalactico.desdeRonda(4));
-        assertEquals(SectorGalactico.FRONTERA_DE_KHEPRI, SectorGalactico.desdeRonda(5));
+        assertFalse(SectorGalactico.CINTURON_DE_VELA.esRondaDeJefe(3));
+        assertTrue(SectorGalactico.CINTURON_DE_VELA.esRondaDeJefe(4));
+        assertTrue(SectorGalactico.NEBULOSA_DE_ION.esRondaDeJefe(8));
+        assertFalse(SectorGalactico.FRONTERA_DE_KHEPRI.esRondaDeJefe(11));
+        assertTrue(SectorGalactico.FRONTERA_DE_KHEPRI.esRondaDeJefe(12));
+        assertEquals(15, OleadaNaves.cantidadInicial(2));
+        assertEquals(21, OleadaNaves.cantidadInicial(6));
+        assertEquals(0, OleadaNaves.cantidadInicial(12));
+        for (int ronda = 9; ronda <= 40; ronda++) {
+            assertEquals(ronda >= 12 && ronda % 4 == 0,
+                    SectorGalactico.FRONTERA_DE_KHEPRI.esRondaDeJefe(ronda));
+        }
+        assertEquals(SectorGalactico.CINTURON_DE_VELA, SectorGalactico.desdeRonda(2));
+        assertEquals(SectorGalactico.NEBULOSA_DE_ION, SectorGalactico.desdeRonda(5));
+        assertEquals(SectorGalactico.FRONTERA_DE_KHEPRI, SectorGalactico.desdeRonda(9));
     }
 
     @Test
@@ -131,6 +122,22 @@ public class JuegoCoreTest {
                         .tamano(32f)
                         .velocidad(0f, 0f)
                         .construir(null));
+    }
+
+    @Test
+    public void tresEtapasAntesDeCadaJefeYVidaEscaladaDelTercero() {
+        for (int ronda=1;ronda<=60;ronda++) {
+            SectorGalactico sector=SectorGalactico.desdeRonda(ronda);
+            assertEquals(ronda % 4 == 0, sector.esRondaDeJefe(ronda));
+            assertEquals(ronda % 4 == 0, OleadaNaves.cantidadInicial(ronda)==0);
+        }
+        assertTrue(SectorGalactico.NEBULOSA_DE_ION.iniciaEnRonda(5));
+        assertTrue(SectorGalactico.FRONTERA_DE_KHEPRI.iniciaEnRonda(9));
+        assertEquals(40,SectorGalactico.desdeRonda(4).getResistenciaJefe(4));
+        assertEquals(200,SectorGalactico.desdeRonda(8).getResistenciaJefe(8));
+        assertEquals(300,SectorGalactico.desdeRonda(12).getResistenciaJefe(12));
+        assertEquals(330,SectorGalactico.desdeRonda(16).getResistenciaJefe(16));
+        assertEquals(360,SectorGalactico.desdeRonda(20).getResistenciaJefe(20));
     }
 
     private static final class ObjetivoFalso implements ObjetivoDisparo {
