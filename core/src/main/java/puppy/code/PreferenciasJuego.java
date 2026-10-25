@@ -54,31 +54,8 @@ public final class PreferenciasJuego {
         datos().putFloat(clave, Math.max(0f, Math.min(1f, volumen))).flush();
     }
 
-    public boolean usaWASD() {
-        return datos().getBoolean("controlesWASD", false);
-    }
-
-    public void alternarEsquemaControles() {
-        datos().putBoolean("controlesWASD", !usaWASD()).flush();
-    }
-
-    public int getTeclaIzquierda() {
-        return usaWASD() ? Input.Keys.A : Input.Keys.LEFT;
-    }
-
-    public int getTeclaDerecha() {
-        return usaWASD() ? Input.Keys.D : Input.Keys.RIGHT;
-    }
-
-    public int getTeclaAbajo() {
-        return usaWASD() ? Input.Keys.S : Input.Keys.DOWN;
-    }
-
-    public int getTeclaArriba() {
-        return usaWASD() ? Input.Keys.W : Input.Keys.UP;
-    }
-
-    public int getTeclaDisparo() {
-        return usaWASD() ? Input.Keys.CONTROL_LEFT : Input.Keys.SPACE;
-    }
+    public int getTeclaIzquierda() { return Input.Keys.A; }
+    public int getTeclaDerecha() { return Input.Keys.D; }
+    public int getTeclaAbajo() { return Input.Keys.S; }
+    public int getTeclaArriba() { return Input.Keys.W; }
 }

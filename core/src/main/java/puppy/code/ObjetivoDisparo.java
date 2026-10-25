@@ -7,5 +7,9 @@ public interface ObjetivoDisparo {
 
     void recibirImpacto();
 
+    default void recibirDano(float dano) {
+        if(dano>0f) recibirImpacto();
+    }
+
     boolean estaActivo();
 }
