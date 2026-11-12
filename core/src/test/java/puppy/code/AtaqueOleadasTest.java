@@ -96,6 +96,26 @@ public class AtaqueOleadasTest extends EntornoGdxPrueba {
         assertEquals(1, disparos.get());
     }
 
+    @Test public void directorConstruyeJefesConcretosPorSectorYEscalaSusEstadisticas() {
+        SectorGalactico[] sectores = {
+                SectorGalactico.CINTURON_DE_VELA,
+                SectorGalactico.NEBULOSA_DE_ION,
+                SectorGalactico.FRONTERA_DE_KHEPRI,
+                SectorGalactico.FRONTERA_DE_KHEPRI
+        };
+        int[] rondas = {4, 8, 12, 16};
+        float[] vidasMaximas = {400f, 2400f, 3600f, 3960f};
+
+        for (int i = 0; i < sectores.length; i++) {
+            ConstructorJefe constructor = FabricaConstructoresJefe.crear(
+                    sectores[i], rondas[i], textura, textura);
+            JefeSector construido = new DirectorJefes().construirJefeCompleto(constructor);
+
+            assertEquals(sectores[i], construido.getSector());
+            assertEquals(vidasMaximas[i], construido.getVidaMaxima(), 0.001f);
+        }
+    }
+
     @Test public void cadaRafagaApuntaALaPosicionActualDelJugadorEnCualquierDireccion() throws Exception {
         AtaqueOleadas ataque=new AtaqueOleadas();Field campo=ProyectilHostil.class.getDeclaredField("sprite");campo.setAccessible(true);
         for(float[] objetivo:new float[][]{{1000f,400f},{600f,750f},{100f,400f},{600f,100f},{1000f,700f}}) {

@@ -87,20 +87,19 @@ public final class LlegadaNaves {
             float x = borde == 0 ? posicion : borde == 1 ? -60f : MundoJuego.ANCHO + 12f;
             float y = borde == 0 ? MundoJuego.ALTO + 12f : posicion;
             if(ordenDetonadoras[emitidas]) {
-                enemigos.add(new EnemigoBuilder().tipo(EnemigoBuilder.Tipo.ALIEN_DETONADORA)
-                        .posicion(x,y).velocidad(velocidad,velocidad).resistencia(AlienDetonadora.RESISTENCIA).construir(textura));
+                enemigos.add(new AlienDetonadora(x, y, 48f, velocidad,
+                        AlienDetonadora.RESISTENCIA, textura));
             } else if (ordenNaranjas[emitidas]) {
                 enemigos.add(new AlienArtillero(x, y,
                         textura, new Random(random.nextLong())));
             } else if (ordenMoradas[emitidas]) {
                 enemigos.add(new AlienDivisible(x, y, velocidad, textura));
             } else {
-            enemigos.add(new EnemigoBuilder()
-                    .tipo(roja ? EnemigoBuilder.Tipo.ALIEN_EXPLOSIVO : EnemigoBuilder.Tipo.ALIEN)
-                    .posicion(x, y)
-                    .velocidad(velocidad, velocidad)
-                    .resistencia(roja ? AlienExplosivo.RESISTENCIA : AlienEnemigo.resistenciaEnRonda(ronda))
-                    .construir(textura));
+                enemigos.add(roja
+                        ? new AlienExplosivo(x, y, 48f, velocidad,
+                                AlienExplosivo.RESISTENCIA, textura)
+                        : new AlienEnemigo(x, y, velocidad,
+                                AlienEnemigo.resistenciaEnRonda(ronda), textura));
             }
             enemigos.get(enemigos.size()-1).configurarVidaParaRonda(ronda);
             emitidas++;

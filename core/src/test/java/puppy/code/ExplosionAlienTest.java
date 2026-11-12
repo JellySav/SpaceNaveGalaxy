@@ -65,8 +65,7 @@ public class ExplosionAlienTest extends EntornoGdxPrueba {
     }
 
     private AlienExplosivo roja(float x, float y) {
-        return (AlienExplosivo) new EnemigoBuilder().tipo(EnemigoBuilder.Tipo.ALIEN_EXPLOSIVO)
-                .posicion(x, y).velocidad(100f, 100f).resistencia(2).construir(textura);
+        return new AlienExplosivo(x, y, 48f, 100f, 2, textura);
     }
 
     private void destruir(Enemigo enemigo) {

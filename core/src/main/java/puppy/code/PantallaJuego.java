@@ -145,23 +145,10 @@ public class PantallaJuego implements Screen {
     }
 
     private void crearEnemigos() {
-        float anchoMundo = MundoJuego.ANCHO;
-        float altoMundo = MundoJuego.ALTO;
                 if (sector.esRondaDeJefe(ronda)) {
-                    float tamanoJefe = Math.min(150f, anchoMundo * 0.2f);
-                    float xJefe = (anchoMundo - tamanoJefe) / 2f;
-                    float yJefe = sector==SectorGalactico.CINTURON_DE_VELA
-                            ? (altoMundo-tamanoJefe)/2f : altoMundo-tamanoJefe-105f;
-                    int resistenciaJefe = sector.getResistenciaJefe(ronda);
-                    jefeSector = (JefeSector) new EnemigoBuilder()
-                        .tipo(EnemigoBuilder.Tipo.JEFE)
-                        .posicion(xJefe, yJefe)
-                        .tamano(tamanoJefe)
-                        .velocidad(34f * sector.getFactorDificultad(), 0f)
-                        .resistencia(resistenciaJefe)
-                        .sector(sector)
-                        .construir(naveTexture, bulletTexture);
-                    jefeSector.configurarVidaParaRonda(ronda);
+                    ConstructorJefe constructor = FabricaConstructoresJefe.crear(
+                            sector, ronda, naveTexture, bulletTexture);
+                    jefeSector = new DirectorJefes().construirJefeCompleto(constructor);
                     enemigos.add(jefeSector);
                     tiempoMensajeSector = 6f;
                     mensajeMejora = "JEFE DE SECTOR: " + jefeSector.getNombre();

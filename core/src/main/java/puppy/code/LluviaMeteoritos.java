@@ -73,11 +73,8 @@ public final class LluviaMeteoritos {
         float longitud = (float) Math.sqrt(dx * dx + dy * dy);
         float velocidad = 110f + 4f * Math.min(12, Math.max(0, ronda - 1))
                 + random.nextFloat() * 20f;
-        AsteroideEnemigo meteorito=(AsteroideEnemigo) new EnemigoBuilder()
-                .tipo(EnemigoBuilder.Tipo.ASTEROIDE)
-                .posicion(x, y).tamano(tamano)
-                .velocidad(dx / longitud * velocidad, dy / longitud * velocidad)
-                .construir(textura);
+        AsteroideEnemigo meteorito = new AsteroideEnemigo(x, y, tamano,
+                dx / longitud * velocidad, dy / longitud * velocidad, textura);
         meteorito.configurarVidaParaRonda(ronda);
         return meteorito;
     }

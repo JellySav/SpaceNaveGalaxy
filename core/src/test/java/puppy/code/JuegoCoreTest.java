@@ -2,7 +2,6 @@ package puppy.code;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertThrows;
 import static org.junit.Assert.assertTrue;
 
 import java.util.Arrays;
@@ -125,19 +124,6 @@ public class JuegoCoreTest {
         List<ObjetivoFalso> colisiones = indice.consultar(new Rectangle(25f, 25f, 8f, 8f));
         assertEquals(1, colisiones.size());
         assertTrue(colisiones.contains(cercano));
-    }
-
-    @Test
-    public void builderRechazaEnemigosSinConfiguracionMinima() {
-        assertThrows(IllegalStateException.class,
-                () -> new EnemigoBuilder().construir(null));
-        assertThrows(IllegalArgumentException.class,
-                () -> new EnemigoBuilder()
-                        .tipo(EnemigoBuilder.Tipo.ASTEROIDE)
-                        .posicion(10f, 10f)
-                        .tamano(32f)
-                        .velocidad(0f, 0f)
-                        .construir(null));
     }
 
     @Test

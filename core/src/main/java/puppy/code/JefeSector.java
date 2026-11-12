@@ -161,8 +161,8 @@ public class JefeSector extends Enemigo {
             case 1:return new AlienExplosivo(x,y,48f,velocidad,AlienExplosivo.RESISTENCIA,textura);
             case 2:return new AlienDivisible(x,y,velocidad,textura);
             case 3:return new AlienArtillero(x,y,textura,new java.util.Random(randomRefuerzos.nextLong()));
-            case 4:return (AlienEnemigo)new EnemigoBuilder().tipo(EnemigoBuilder.Tipo.ALIEN_DETONADORA)
-                    .posicion(x,y).velocidad(velocidad,velocidad).resistencia(AlienDetonadora.RESISTENCIA).construir(textura);
+            case 4:return new AlienDetonadora(x, y, 48f, velocidad,
+                    AlienDetonadora.RESISTENCIA, textura);
             default:return new AlienEnemigo(x,y,velocidad,resistencia,textura);
         }
     }
