@@ -1,5 +1,7 @@
 package puppy.code;
 
+import puppy.code.enemigos.*;
+
 import java.util.List;
 
 /** Las naves son el objetivo obligatorio; los meteoritos son salvamento opcional. */

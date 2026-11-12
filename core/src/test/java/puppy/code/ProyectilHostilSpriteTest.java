@@ -1,9 +1,14 @@
 package puppy.code;
+
 import static org.junit.Assert.*;
+
+import puppy.code.combate.*;
+
 import org.junit.Test;
 import java.lang.reflect.Field;
 import com.badlogic.gdx.graphics.g2d.*;
 import com.badlogic.gdx.math.Rectangle;
+
 public class ProyectilHostilSpriteTest extends EntornoGdxPrueba {
     private Sprite sprite(ProyectilHostil bala)throws Exception {
         Field campo=ProyectilHostil.class.getDeclaredField("sprite");campo.setAccessible(true);return (Sprite)campo.get(bala);

@@ -1,9 +1,15 @@
 package puppy.code;
-import org.junit.Test;
+
 import static org.junit.Assert.*;
+
+import puppy.code.combate.*;
+import puppy.code.enemigos.*;
+
+import org.junit.Test;
 import java.lang.reflect.*;
 import java.util.*;
 import com.badlogic.gdx.graphics.g2d.Sprite;
+
 public class GiroPrimerJefeTest extends EntornoGdxPrueba {
  private JefeSector jefe(){return crearJefe(550,350,100,34,40,SectorGalactico.CINTURON_DE_VELA,textura,textura);}
  private Field angle()throws Exception{Field f=Enemigo.class.getDeclaredField("anguloApariencia");f.setAccessible(true);return f;}

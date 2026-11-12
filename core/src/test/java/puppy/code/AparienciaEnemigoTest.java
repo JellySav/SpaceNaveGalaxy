@@ -1,10 +1,15 @@
 package puppy.code;
+
 import static org.junit.Assert.*;
+
+import puppy.code.enemigos.*;
+
 import java.lang.reflect.Field;
 import java.util.*;
 import org.junit.Test;
 import com.badlogic.gdx.graphics.g2d.*;
 import com.badlogic.gdx.math.Rectangle;
+
 public class AparienciaEnemigoTest extends EntornoGdxPrueba {
     private Sprite sprite(Enemigo enemigo)throws Exception {
         Field f=Enemigo.class.getDeclaredField("sprite");f.setAccessible(true);return (Sprite)f.get(enemigo);

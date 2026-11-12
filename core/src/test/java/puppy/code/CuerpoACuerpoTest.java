@@ -1,9 +1,18 @@
 package puppy.code;
+
 import static org.junit.Assert.*;
+
+import puppy.code.combate.*;
+import puppy.code.enemigos.*;
+import puppy.code.mejoras.*;
+import puppy.code.nave.*;
+import puppy.code.pantallas.*;
+
 import java.util.*;
 import java.lang.reflect.*;
 import org.junit.Test;
 import com.badlogic.gdx.Input;
+
 public class CuerpoACuerpoTest extends EntornoGdxPrueba {
     private final ProgresionMejoras p=ProgresionMejoras.obtenerInstancia();
     private void elegir(TipoMejora tipo){p.subirNivelPruebas();assertTrue(p.elegirMejora(tipo));}

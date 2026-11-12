@@ -1,6 +1,11 @@
 package puppy.code;
-import org.junit.Test;
+
 import static org.junit.Assert.*;
+
+import puppy.code.mejoras.*;
+
+import org.junit.Test;
+
 public class BonosBaseNavesTest {
  private final ProgresionMejoras p=ProgresionMejoras.obtenerInstancia();
  private void elegir(TipoMejora tipo){p.subirNivelPruebas();assertTrue(p.elegirMejora(tipo));}

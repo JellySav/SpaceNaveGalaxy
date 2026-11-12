@@ -1,6 +1,11 @@
 package puppy.code;
+
 import static org.junit.Assert.*;
+
+import puppy.code.nave.*;
+
 import org.junit.Test;
+
 public class NaveInvulnerabilidadTest extends EntornoGdxPrueba {
     @Test public void recibirDanoProtegeDuranteUnoComaCincoSegundosYSoloSeRenuevaConOtroImpacto() {
         Nave4 nave=nave(100,100);assertTrue(nave.recibirDano());assertEquals(2,nave.getVidas());

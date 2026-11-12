@@ -1,6 +1,10 @@
 package puppy.code;
 
 import static org.junit.Assert.*;
+
+import puppy.code.combate.*;
+import puppy.code.nave.*;
+
 import org.junit.Test;
 import com.badlogic.gdx.math.Rectangle;
 

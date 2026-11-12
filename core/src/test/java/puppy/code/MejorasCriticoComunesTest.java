@@ -1,7 +1,13 @@
 package puppy.code;
+
 import static org.junit.Assert.*;
+
+import puppy.code.combate.*;
+import puppy.code.mejoras.*;
+
 import java.util.*;
 import org.junit.Test;
+
 public class MejorasCriticoComunesTest extends EntornoGdxPrueba {
     private final ProgresionMejoras p=ProgresionMejoras.obtenerInstancia();
     private void elegir(TipoMejora tipo){p.subirNivelPruebas();assertTrue(p.elegirMejora(tipo));}

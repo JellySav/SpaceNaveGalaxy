@@ -1,6 +1,10 @@
 package puppy.code;
 
 import static org.junit.Assert.*;
+
+import puppy.code.combate.*;
+import puppy.code.enemigos.*;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;

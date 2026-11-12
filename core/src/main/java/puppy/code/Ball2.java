@@ -1,5 +1,7 @@
 package puppy.code;
 
+import puppy.code.enemigos.*;
+
 import com.badlogic.gdx.graphics.Texture;
 
 public class Ball2 extends AsteroideEnemigo {

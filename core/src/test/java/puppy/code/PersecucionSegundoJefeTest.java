@@ -1,7 +1,13 @@
 package puppy.code;
+
 import static org.junit.Assert.*;
+
+import puppy.code.combate.*;
+import puppy.code.enemigos.*;
+
 import org.junit.Test;
 import java.util.*;
+
 public class PersecucionSegundoJefeTest extends EntornoGdxPrueba {
  private JefeSector jefe(){return crearJefe(400,400,100,30,200,SectorGalactico.NEBULOSA_DE_ION,textura,textura);}
  @Test public void persigueEnDiagonalConVelocidadConstante(){

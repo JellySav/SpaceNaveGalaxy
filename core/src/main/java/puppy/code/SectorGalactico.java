@@ -1,5 +1,8 @@
 package puppy.code;
 
+import puppy.code.combate.*;
+import puppy.code.enemigos.*;
+
 import java.util.function.Supplier;
 
 public enum SectorGalactico {

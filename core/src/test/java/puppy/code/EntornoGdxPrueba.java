@@ -1,6 +1,12 @@
 package puppy.code;
 
 import static org.junit.Assert.*;
+
+import puppy.code.combate.*;
+import puppy.code.enemigos.*;
+import puppy.code.mejoras.*;
+import puppy.code.nave.*;
+
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Proxy;

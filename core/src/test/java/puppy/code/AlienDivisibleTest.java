@@ -1,6 +1,12 @@
 package puppy.code;
 
 import static org.junit.Assert.*;
+
+import puppy.code.combate.*;
+import puppy.code.enemigos.*;
+import puppy.code.mejoras.*;
+import puppy.code.pantallas.*;
+
 import java.util.*;
 import java.lang.reflect.*;
 import org.junit.Test;

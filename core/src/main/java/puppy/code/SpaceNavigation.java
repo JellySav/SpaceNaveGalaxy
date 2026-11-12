@@ -17,7 +17,7 @@ public class SpaceNavigation extends Game {
 		batch = new SpriteBatch();
 		font = new BitmapFont(); // usa Arial font x defecto
 		font.getData().setScale(2f);
-		Screen ss = new PantallaMenu(this);
+		Screen ss = new puppy.code.pantallas.PantallaMenu(this);
 		this.setScreen(ss);
 	}
 
@@ -50,7 +50,7 @@ public class SpaceNavigation extends Game {
 	public PreferenciasJuego getPreferencias() {
 		return PreferenciasJuego.obtenerInstancia();
 	}
-	
-	
+
+
 
 }

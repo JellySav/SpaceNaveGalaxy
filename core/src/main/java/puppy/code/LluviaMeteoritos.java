@@ -1,5 +1,7 @@
 package puppy.code;
 
+import puppy.code.enemigos.*;
+
 import java.util.List;
 import java.util.Random;
 import com.badlogic.gdx.graphics.Texture;

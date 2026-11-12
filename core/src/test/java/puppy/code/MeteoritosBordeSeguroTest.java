@@ -1,8 +1,13 @@
 package puppy.code;
+
 import static org.junit.Assert.*;
+
+import puppy.code.enemigos.*;
+
 import java.util.*;
 import org.junit.Test;
 import com.badlogic.gdx.math.Rectangle;
+
 public class MeteoritosBordeSeguroTest extends EntornoGdxPrueba {
     private int borde(Enemigo enemigo) {
         Rectangle area=enemigo.getArea();

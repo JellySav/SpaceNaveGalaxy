@@ -1,7 +1,15 @@
 package puppy.code;
-import org.junit.Test;
+
 import static org.junit.Assert.*;
+
+import puppy.code.combate.*;
+import puppy.code.enemigos.*;
+import puppy.code.mejoras.*;
+import puppy.code.nave.*;
+
+import org.junit.Test;
 import com.badlogic.gdx.Input;
+
 public class PersecucionTercerJefeTest extends EntornoGdxPrueba {
  @Test public void terceroEsMasRapidoQueSegundoEnLaPartida(){
   JefeSector segundo=crearJefe(400,400,100,34*SectorGalactico.NEBULOSA_DE_ION.getFactorDificultad(),200,SectorGalactico.NEBULOSA_DE_ION,textura,textura);

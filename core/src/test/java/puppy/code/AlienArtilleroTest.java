@@ -1,6 +1,10 @@
 package puppy.code;
 
 import static org.junit.Assert.*;
+
+import puppy.code.combate.*;
+import puppy.code.enemigos.*;
+
 import java.util.*;
 import java.lang.reflect.Field;
 import com.badlogic.gdx.graphics.g2d.Sprite;

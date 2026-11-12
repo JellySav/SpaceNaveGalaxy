@@ -6,32 +6,44 @@ consigue puntos y elige mejoras durante cada partida.
 ## Abrir y ejecutar
 
 Clona el repositorio y abre su carpeta raiz en IntelliJ IDEA como proyecto Gradle.
-Usa un JDK compatible con Gradle 8.10.1, por ejemplo JDK 21 o el JDK 23 utilizado
-para desarrollar esta version. Desde la carpeta del proyecto, en Windows:
+El proyecto usa Gradle 8.10.1, que puede ejecutarse con JDK 11, y compila el codigo
+para Java 11. No es necesario instalar una version de JDK superior. Desde la carpeta
+del proyecto, en Windows:
 
 ```powershell
 .\gradlew.bat lwjgl3:run
 .\gradlew.bat core:test
 ```
+El empaquetado nativo multiplataforma es opcional y requiere JDK 17; la ejecucion,
+las pruebas y la compilacion normal funcionan con JDK 11.
 
 ## Codigo y UML
 
-El codigo del juego esta en `core/src/main/java/puppy/code`.
+El codigo del juego esta en `core/src/main/java/puppy/code`, organizado por dominios:
+
+- `enemigos`: aliens, jefes y constructores de jefes.
+- `combate`: disparos, proyectiles, ataques y colisiones.
+- `nave`: nave del jugador, drones y apoyos.
+- `mejoras`: progresion y catalogo de mejoras.
+- `pantallas`: menu, juego, pausa, mejoras y fin de partida.
+- `apariencias`: recursos y apariencias visuales.
+
 El punto de entrada de escritorio esta en `lwjgl3/src/main/java/puppy/code/lwjgl3`.
 Las pruebas estan en `core/src/test/java/puppy/code` y los recursos en `assets`.
 
 Para revisar el diagrama de clases y los patrones de diseno:
 
-- **Singleton:** `ProgresionMejoras` conserva el estado de mejoras de la partida.
-- **Strategy:** `EstrategiaDisparo` y sus implementaciones definen el disparo de la
-  nave; `AtaqueJefe` define estrategias de ataque para los jefes.
-- **Template Method:** `Enemigo.actualizar` y `Enemigo.dibujar` fijan el flujo comun;
+- **Singleton:** `mejoras/ProgresionMejoras` conserva el estado de mejoras de la partida.
+- **Strategy:** `combate/EstrategiaDisparo` y sus implementaciones definen el disparo
+  de la nave; `combate/AtaqueJefe` define estrategias de ataque para los jefes.
+- **Template Method:** `enemigos/Enemigo.actualizar` y `Enemigo.dibujar` fijan el flujo comun;
   las subclases especializan `actualizarComportamiento` y `dibujarSprite`.
-- **Builder:** `EnemigoBuilder` construye enemigos y jefes.
+- **Builder:** `enemigos/ConstructorJefe` define los pasos; `DirectorJefes` los coordina
+  y los constructores concretos ensamblan los jefes por sector.
 
-`PantallaJuego` coordina la partida. `Nave4` representa al jugador; los enemigos
-comparten la base `Enemigo`. `PantallaMenu`, `PantallaMejoras`, `PantallaPausa` y
-`PantallaGameOver` manejan las pantallas principales. No hace falta ejecutar el
+`pantallas/PantallaJuego` coordina la partida. `nave/Nave4` representa al jugador;
+los enemigos comparten la base `enemigos/Enemigo`. Las pantallas manejan la interfaz
+principal. No hace falta ejecutar el
 juego para inspeccionar estas clases y preparar el UML.
 
 ## Controles

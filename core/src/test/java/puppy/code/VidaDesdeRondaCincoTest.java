@@ -1,7 +1,12 @@
 package puppy.code;
+
 import static org.junit.Assert.*;
+
+import puppy.code.enemigos.*;
+
 import java.util.*;
 import org.junit.Test;
+
 public class VidaDesdeRondaCincoTest extends EntornoGdxPrueba {
     @Test public void aumentoDesdeCincoEsFijoNoRellenaVidaNiSeAcumula() {
         Enemigo enemigo=new AlienEnemigo(100,100,100,5,textura);

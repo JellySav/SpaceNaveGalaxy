@@ -1,6 +1,9 @@
 package puppy.code;
 
 import static org.junit.Assert.*;
+
+import puppy.code.pantallas.*;
+
 import org.junit.Test;
 
 public class ReinicioPartidaTest {

@@ -1,9 +1,16 @@
 package puppy.code;
+
 import static org.junit.Assert.*;
+
+import puppy.code.enemigos.*;
+import puppy.code.mejoras.*;
+import puppy.code.nave.*;
+
 import org.junit.Test;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Rectangle;
+
 public class AparienciaNaveTest extends EntornoGdxPrueba {
     @Test public void aparienciaConPropulsionNoModificaColisionPosicionOVida() {
         Nave4 nave=nave(100,100);Rectangle antes=new Rectangle(nave.getArea());
