@@ -14,7 +14,7 @@ public class BalasMejoradasTest extends EntornoGdxPrueba {
         assertEquals(18.5f,enemigo.getVidaActual(),0f);
         bala(11.5f,0f,0f).checkCollision(enemigo);assertEquals(7f,enemigo.getVidaActual(),0f);
         bala(11.5f,0f,0f).checkCollision(enemigo);assertTrue(enemigo.estaDestruido());
-        JefeSector jefe=new JefeSector(100f,100f,100f,30f,260,SectorGalactico.FRONTERA_DE_KHEPRI,textura,textura);
+        JefeSector jefe=crearJefe(100f,100f,100f,30f,260,SectorGalactico.FRONTERA_DE_KHEPRI,textura,textura);
         assertEquals(2600f,jefe.getVidaMaxima(),0f);
     }
     @Test public void perforacionAtraviesaVariosEnemigosSinRepetirDanoAlMismo() {

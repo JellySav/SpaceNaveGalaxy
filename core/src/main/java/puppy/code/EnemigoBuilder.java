@@ -77,6 +77,7 @@ public class EnemigoBuilder {
                 throw new IllegalStateException("El jefe requiere sector y textura de proyectil");
             }
             return new JefeSector(x, y, tamano, velocidadX, resistencia, sector,
+                    sector.crearAtaqueJefe(), sector.crearAtaqueEspecialJefe(),
                     textura, texturaProyectil);
         }
         if (tipo == Tipo.ALIEN_DETONADORA) {

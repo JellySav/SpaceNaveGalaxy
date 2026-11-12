@@ -6,7 +6,7 @@ import java.util.List;
 import java.util.function.Consumer;
 
 /** El tercer jefe alterna parejas de bordes adyacentes; el segundo mantiene su barrido simple. */
-public final class AtaqueBarrera {
+public final class AtaqueBarrera implements AtaqueEspecialJefe {
     public static final float INTERVALO = 14f;
     public static final float VELOCIDAD_TERCER_JEFE = BarreraEnergia.VELOCIDAD * 1.2f;
     private final boolean dobleAlterna;
@@ -18,6 +18,7 @@ public final class AtaqueBarrera {
     public AtaqueBarrera() { this(false); }
     public AtaqueBarrera(boolean dobleAlterna) { this.dobleAlterna = dobleAlterna; }
 
+    @Override
     public void actualizar(float delta, float jugadorX, float jugadorY,
                            Consumer<CargaEnergia> soltarEnergia) {
         if (delta <= 0f) return;
@@ -39,6 +40,9 @@ public final class AtaqueBarrera {
         }
     }
 
+    @Override
     public BarreraEnergia getBarrera() { return barreras.isEmpty() ? null : barreras.get(0); }
+
+    @Override
     public List<BarreraEnergia> getBarreras() { return vistaBarreras; }
 }

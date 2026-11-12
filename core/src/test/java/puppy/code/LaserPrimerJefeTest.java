@@ -5,7 +5,7 @@ import java.util.*;
 import java.lang.reflect.*;
 import com.badlogic.gdx.math.Rectangle;
 public class LaserPrimerJefeTest extends EntornoGdxPrueba {
- private JefeSector jefe(){return new JefeSector(550,350,100,34,40,SectorGalactico.CINTURON_DE_VELA,textura,textura);}
+ private JefeSector jefe(){return crearJefe(550,350,100,34,40,SectorGalactico.CINTURON_DE_VELA,textura,textura);}
  private float angulo(JefeSector jefe)throws Exception{Field f=Enemigo.class.getDeclaredField("anguloApariencia");f.setAccessible(true);return f.getFloat(jefe);}
  @Test public void quintoTurnoCargaLaserSinSalvaSimultaneaYCongelaLaMira()throws Exception{
   JefeSector jefe=jefe();List<ProyectilHostil> balas=new ArrayList<>();

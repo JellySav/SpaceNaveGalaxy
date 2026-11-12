@@ -123,7 +123,8 @@ public class PantallaJuego implements Screen {
 
         crearCampoEstelar(MundoJuego.ANCHO, MundoJuego.ALTO);
         nave = new Nave4((int) (MundoJuego.ANCHO / 2f - 22f), 30, naveTexture,
-                naveHitSound, bulletTexture, bulletSound, vidas, progresion.getNivelArma());
+                naveHitSound, bulletTexture, bulletSound, vidas, progresion.getNivelArma(),
+                FabricaEstrategiasDisparo.crear(progresion.getNivelArma()));
         nave.setEnergiaDash(energiaDash);
         sincronizarMejoras();
         if(aliado!=null)aliado.desactivar(tiempoDronDesactivado);
@@ -644,7 +645,8 @@ public class PantallaJuego implements Screen {
     }
 
     void sincronizarMejoras() {
-        nave.aplicarMejoras();
+        nave.aplicarMejoras(progresion.getVidasMaximas(), progresion.getNivelArma(),
+                FabricaEstrategiasDisparo.crear(progresion.getNivelArma()));
         aparienciasNave.aplicar(nave,progresion);
         if(progresion.tieneMiniDron() && miniDron==null)miniDron=new DronEscolta(naveTexture,false,true);
         if(progresion.tieneDronLaser() && dronLaser==null) {

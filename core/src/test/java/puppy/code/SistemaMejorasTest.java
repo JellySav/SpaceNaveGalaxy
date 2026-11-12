@@ -34,11 +34,11 @@ public class SistemaMejorasTest extends EntornoGdxPrueba {
     }
     @Test public void vidaAmpliaMaximoYCuraSoloElIncrementoYReparacionRespetaMaximo() {
         Nave4 nave=nave(100,100,1);
-        elegir(TipoMejora.VIDA);nave.aplicarMejoras();
+        elegir(TipoMejora.VIDA);aplicarMejoras(nave);
         assertEquals(4,nave.getVidasMaximas());assertEquals(2,nave.getVidas());
-        elegir(TipoMejora.VIDA_EPICA);nave.aplicarMejoras();
+        elegir(TipoMejora.VIDA_EPICA);aplicarMejoras(nave);
         assertEquals(6,nave.getVidasMaximas());assertEquals(4,nave.getVidas());
-        nave.aplicarMejoras();assertEquals(4,nave.getVidas());
+        aplicarMejoras(nave);assertEquals(4,nave.getVidas());
         nave.reparar();nave.reparar();nave.reparar();assertEquals(6,nave.getVidas());
         Nave4 siguiente=nave(100,100,4);
         assertEquals(6,siguiente.getVidasMaximas());assertEquals(4,siguiente.getVidas());

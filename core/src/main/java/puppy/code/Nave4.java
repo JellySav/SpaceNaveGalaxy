@@ -44,17 +44,11 @@ public class Nave4 {
         Input.Keys.UP, Input.Keys.DOWN, Input.Keys.LEFT, Input.Keys.RIGHT
     };
     private int nivelArma = 1;
-    private EstrategiaDisparo estrategiaDisparo = new DisparoSimple();
-
-    public Nave4(int x, int y, Texture textura, Sound sonidoHerido,
-                 Texture texturaBala, Sound sonidoDisparo) {
-        this(x, y, textura, sonidoHerido, texturaBala, sonidoDisparo, 3,
-                ProgresionMejoras.obtenerInstancia().getNivelArma());
-    }
+    private EstrategiaDisparo estrategiaDisparo;
 
     public Nave4(int x, int y, Texture textura, Sound sonidoHerido,
                  Texture texturaBala, Sound sonidoDisparo, int vidasIniciales,
-                 int nivelArmaInicial) {
+                 int nivelArmaInicial, EstrategiaDisparo estrategiaDisparoInicial) {
         this.sprite = new Sprite(textura);
         this.sprite.setBounds(x, y, 45f, 45f);
         this.sprite.setOriginCenter();
@@ -65,7 +59,7 @@ public class Nave4 {
         this.estadoVidas.actualizarMaximo(
                 ProgresionMejoras.obtenerInstancia().getVidasMaximas());
         this.estadoVidas.establecerVidas(vidasIniciales);
-        configurarArma(nivelArmaInicial);
+        establecerEstrategiaDisparo(nivelArmaInicial, estrategiaDisparoInicial);
     }
 
     public void draw(SpriteBatch batch, PantallaJuego juego) {
@@ -256,23 +250,18 @@ public class Nave4 {
         return true;
     }
 
-    private void configurarArma(int nivel) {
-        nivelArma = Math.max(1, Math.min(4, nivel));
-        if (nivelArma == 1) {
-            estrategiaDisparo = new DisparoSimple();
-        } else if (nivelArma == 2) {
-            estrategiaDisparo = new DisparoDoble();
-        } else if(nivelArma==3) {
-            estrategiaDisparo = new DisparoTriple();
-        } else {
-            estrategiaDisparo = new DisparoQuintuple();
+    private void establecerEstrategiaDisparo(int nivel, EstrategiaDisparo estrategia) {
+        if (estrategia == null) {
+            throw new IllegalArgumentException("La estrategia de disparo es obligatoria");
         }
+        nivelArma = Math.max(1, Math.min(4, nivel));
+        estrategiaDisparo = estrategia;
     }
 
-    public void aplicarMejoras() {
-        ProgresionMejoras p=ProgresionMejoras.obtenerInstancia();
-        estadoVidas.actualizarMaximo(p.getVidasMaximas());
-        configurarArma(p.getNivelArma());
+    public void aplicarMejoras(int vidasMaximas, int nivelArma,
+                               EstrategiaDisparo estrategia) {
+        estadoVidas.actualizarMaximo(vidasMaximas);
+        establecerEstrategiaDisparo(nivelArma, estrategia);
     }
     public int getVidasMaximas(){return estadoVidas.getMaximas();}
 

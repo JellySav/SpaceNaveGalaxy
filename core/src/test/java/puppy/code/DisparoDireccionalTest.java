@@ -95,6 +95,24 @@ public class DisparoDireccionalTest extends EntornoGdxPrueba {
         nave=nave(500,300,0);nave.actualizar(juego,1f);assertEquals(1,balas.size());
     }
 
+    @Test public void naveUsaLaEstrategiaInyectada() {
+        EstrategiaDisparo estrategia = new EstrategiaDisparo() {
+            @Override
+            public void disparar(float x, float y, float dx, float dy,
+                                 com.badlogic.gdx.graphics.Texture textura,
+                                 java.util.function.Consumer<Bullet> emitirBala) {
+            }
+
+            @Override
+            public String getNombre() {
+                return "PRUEBA";
+            }
+        };
+        Nave4 nave = new Nave4(500, 300, textura, sonido, textura, sonido,
+                3, 1, estrategia);
+        assertEquals("PRUEBA", nave.getNombreArma());
+    }
+
     @Test public void dashSigueMovimientoAunqueSeDispareAlLadoOpuesto() throws Exception {
         List<Bullet> balas=new ArrayList<>();PantallaJuego juego=pantalla(balas);
         Nave4 nave=nave(500,300);

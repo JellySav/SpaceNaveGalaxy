@@ -34,7 +34,7 @@ public class VidaDesdeRondaCincoTest extends EntornoGdxPrueba {
         SectorGalactico[] sectores={SectorGalactico.CINTURON_DE_VELA,SectorGalactico.NEBULOSA_DE_ION,SectorGalactico.FRONTERA_DE_KHEPRI};
         int[] rondas={4,8,12};
         for(int i=0;i<sectores.length;i++) {
-            JefeSector jefe=new JefeSector(400,500,100,30,sectores[i].getResistenciaJefe(rondas[i]),sectores[i],textura,textura);
+            JefeSector jefe=crearJefe(400,500,100,30,sectores[i].getResistenciaJefe(rondas[i]),sectores[i],textura,textura);
             jefe.configurarVidaParaRonda(rondas[i]);float factor=rondas[i]>=5?1.2f:1f;
             assertEquals(sectores[i].getResistenciaJefe(rondas[i])*10f*factor,jefe.getVidaMaxima(),0.01f);
             List<AlienEnemigo> refuerzos=new ArrayList<>();jefe.actualizarRefuerzos(100f,100,7,textura,refuerzos::add);

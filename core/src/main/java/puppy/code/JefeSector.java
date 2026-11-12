@@ -12,7 +12,7 @@ public class JefeSector extends Enemigo {
 
     private final Texture texturaProyectil;
     private final AtaqueJefe ataque;
-    private final AtaqueBarrera ataqueBarrera;
+    private final AtaqueEspecialJefe ataqueEspecial;
     private float tiempoAtaque;
     private int salvasNormales;
     private LaserJefe laserPrimerJefe;
@@ -22,18 +22,18 @@ public class JefeSector extends Enemigo {
 
     public JefeSector(float x, float y, float tamano, float velocidad,
                       int resistencia, SectorGalactico sector,
+                      AtaqueJefe ataque, AtaqueEspecialJefe ataqueEspecial,
                       Texture textura, Texture texturaProyectil) {
         super(textura, x, y, tamano, tamano, velocidad, 0f, resistencia);
-        if (sector == null || texturaProyectil == null) {
-            throw new IllegalArgumentException("Sector y proyectil del jefe son obligatorios");
+        if (sector == null || ataque == null || texturaProyectil == null) {
+            throw new IllegalArgumentException("Sector, ataque y proyectil del jefe son obligatorios");
         }
         this.sector = sector;
         this.velocidadPersecucion=Math.abs(velocidad);
         if(sector==SectorGalactico.CINTURON_DE_VELA)setVelocidad(0f,0f);
-        this.ataqueBarrera = sector == SectorGalactico.NEBULOSA_DE_ION ? new AtaqueBarrera()
-                : sector == SectorGalactico.FRONTERA_DE_KHEPRI ? new AtaqueBarrera(true) : null;
+        this.ataqueEspecial = ataqueEspecial;
         this.texturaProyectil = texturaProyectil;
-        ataque = sector.crearAtaqueJefe();
+        this.ataque = ataque;
         setColor(sector.getColorJefeRojo(), sector.getColorJefeVerde(),
                 sector.getColorJefeAzul(), 1f);
         tiempoAtaque = ataque.getIntervalo();
@@ -43,7 +43,7 @@ public class JefeSector extends Enemigo {
     @Override
     protected void actualizarComportamiento(float delta, float objetivoX, float objetivoY) {
         if(sector==SectorGalactico.NEBULOSA_DE_ION || sector==SectorGalactico.FRONTERA_DE_KHEPRI){
-            if(ataqueBarrera.getBarrera()!=null){setVelocidad(0f,0f);return;}
+            if(ataqueEspecial != null && ataqueEspecial.getBarrera()!=null){setVelocidad(0f,0f);return;}
             float dx=objetivoX-getCentroX(),dy=objetivoY-getCentroY();
             float distancia=(float)Math.hypot(dx,dy);
             if(distancia<0.001f){setVelocidad(0f,0f);return;}
@@ -103,17 +103,17 @@ public class JefeSector extends Enemigo {
 
     public void actualizarAtaqueEspecial(float delta, float jugadorX, float jugadorY,
                                          Consumer<CargaEnergia> soltarEnergia) {
-        if (estaActivo() && ataqueBarrera != null) {
-            ataqueBarrera.actualizar(delta, jugadorX, jugadorY, soltarEnergia);
+        if (estaActivo() && ataqueEspecial != null) {
+            ataqueEspecial.actualizar(delta, jugadorX, jugadorY, soltarEnergia);
         }
     }
 
     public BarreraEnergia getBarreraEnergia() {
-        return estaActivo() && ataqueBarrera != null ? ataqueBarrera.getBarrera() : null;
+        return estaActivo() && ataqueEspecial != null ? ataqueEspecial.getBarrera() : null;
     }
 
     public java.util.List<BarreraEnergia> getBarrerasEnergia() {
-        return estaActivo() && ataqueBarrera != null ? ataqueBarrera.getBarreras()
+        return estaActivo() && ataqueEspecial != null ? ataqueEspecial.getBarreras()
                 : java.util.Collections.emptyList();
     }
 

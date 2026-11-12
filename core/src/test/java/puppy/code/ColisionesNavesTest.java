@@ -64,7 +64,7 @@ public class ColisionesNavesTest extends EntornoGdxPrueba {
         muerta.recibirImpacto();
         muerta.recibirImpacto();
         Enemigo asteroide = new AsteroideEnemigo(100f, 100f, 48f, 100f, 100f, textura);
-        JefeSector jefe = new JefeSector(100f, 100f, 100f, 30f, 10,
+        JefeSector jefe = crearJefe(100f, 100f, 100f, 30f, 10,
                 SectorGalactico.CINTURON_DE_VELA, textura, textura);
         resolver(Arrays.asList(verde, muerta, asteroide, jefe));
         assertEquals(100f, verde.getArea().x, 0f);

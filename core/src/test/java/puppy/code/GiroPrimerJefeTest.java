@@ -5,7 +5,7 @@ import java.lang.reflect.*;
 import java.util.*;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 public class GiroPrimerJefeTest extends EntornoGdxPrueba {
- private JefeSector jefe(){return new JefeSector(550,350,100,34,40,SectorGalactico.CINTURON_DE_VELA,textura,textura);}
+ private JefeSector jefe(){return crearJefe(550,350,100,34,40,SectorGalactico.CINTURON_DE_VELA,textura,textura);}
  private Field angle()throws Exception{Field f=Enemigo.class.getDeclaredField("anguloApariencia");f.setAccessible(true);return f;}
  @Test public void giraSesentaPorSegundoSinSobrepasarElObjetivo()throws Exception{
   JefeSector jefe=jefe();jefe.actualizar(.25f,1200,800,1000,400);assertEquals(-15f,angle().getFloat(jefe),.001f);

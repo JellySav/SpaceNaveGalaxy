@@ -45,7 +45,7 @@ public class ExplosionAlienTest extends EntornoGdxPrueba {
         AlienEnemigo verdeSeis = new AlienEnemigo(150f, 100f, 100f, 6, textura);
         AlienEnemigo verdeSiete = new AlienEnemigo(100f, 150f, 100f, 7, textura);
         AlienExplosivo otraRoja = roja(150f, 150f);
-        JefeSector jefe = new JefeSector(100f, 170f, 80f, 30f, 10,
+        JefeSector jefe = crearJefe(100f, 170f, 80f, 30f, 10,
                 SectorGalactico.CINTURON_DE_VELA, textura, textura);
         List<Enemigo> enemigos = new ArrayList<>(Arrays.asList(verdeSeis, verdeSiete, otraRoja, jefe));
         List<Enemigo> bajas = new ArrayList<>();
@@ -128,7 +128,7 @@ public class ExplosionAlienTest extends EntornoGdxPrueba {
         AlienExplosivo primera = roja(100f, 100f);
         AlienExplosivo segunda = roja(200f, 100f);
         AlienEnemigo verde = new AlienEnemigo(260f, 100f, 100f, 2, textura);
-        JefeSector jefe = new JefeSector(100f, 170f, 80f, 30f, 10,
+        JefeSector jefe = crearJefe(100f, 170f, 80f, 30f, 10,
                 SectorGalactico.CINTURON_DE_VELA, textura, textura);
         AlienEnemigo lejos = new AlienEnemigo(900f, 100f, 100f, 2, textura);
         List<Enemigo> enemigos = new ArrayList<>(Arrays.asList(segunda, verde, jefe, lejos));

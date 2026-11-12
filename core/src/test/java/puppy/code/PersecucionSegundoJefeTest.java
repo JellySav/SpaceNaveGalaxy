@@ -3,7 +3,7 @@ import static org.junit.Assert.*;
 import org.junit.Test;
 import java.util.*;
 public class PersecucionSegundoJefeTest extends EntornoGdxPrueba {
- private JefeSector jefe(){return new JefeSector(400,400,100,30,200,SectorGalactico.NEBULOSA_DE_ION,textura,textura);}
+ private JefeSector jefe(){return crearJefe(400,400,100,30,200,SectorGalactico.NEBULOSA_DE_ION,textura,textura);}
  @Test public void persigueEnDiagonalConVelocidadConstante(){
   JefeSector jefe=jefe();jefe.actualizar(1,1200,800,750,150);
   assertEquals(400+30/Math.sqrt(2),jefe.getArea().x,.001);

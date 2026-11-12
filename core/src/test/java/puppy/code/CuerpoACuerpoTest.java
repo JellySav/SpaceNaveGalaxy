@@ -29,10 +29,10 @@ public class CuerpoACuerpoTest extends EntornoGdxPrueba {
     }
     @Test public void legendariaUnicaDaVidaYCuraElIncrementoYSeReinicia() {
         Nave4 nave=nave(100,100,1);
-        elegir(TipoMejora.CUERPO_A_CUERPO);nave.aplicarMejoras();
+        elegir(TipoMejora.CUERPO_A_CUERPO);aplicarMejoras(nave);
         assertEquals(RarezaMejora.LEGENDARIA,TipoMejora.CUERPO_A_CUERPO.rareza);
         assertEquals(6,nave.getVidasMaximas());assertEquals(4,nave.getVidas());
-        nave.aplicarMejoras();assertEquals(4,nave.getVidas());
+        aplicarMejoras(nave);assertEquals(4,nave.getVidas());
         p.subirNivelPruebas();int pendientes=p.getPendientes();
         assertFalse(p.elegirMejora(TipoMejora.CUERPO_A_CUERPO));assertEquals(pendientes,p.getPendientes());
         Random random=new Random(3);

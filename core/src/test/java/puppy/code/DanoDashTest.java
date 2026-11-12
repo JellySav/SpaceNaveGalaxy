@@ -43,7 +43,7 @@ public class DanoDashTest extends EntornoGdxPrueba {
     @Test public void afectaVariosObjetivosPeroNoLosQueQuedanFueraDelRecorrido() {
         Nave4 nave = nave(100, 100);
         AlienExplosivo roja = new AlienExplosivo(160f, 100f, 48f, 100f, 3, textura);
-        JefeSector jefe = new JefeSector(230f, 100f, 100f, 30f, 200,
+        JefeSector jefe = crearJefe(230f, 100f, 100f, 30f, 200,
                 SectorGalactico.NEBULOSA_DE_ION, textura, textura);
         AlienEnemigo lejos = new AlienEnemigo(160f, 300f, 1f, 5, textura);
         dash(nave, 0.17f);

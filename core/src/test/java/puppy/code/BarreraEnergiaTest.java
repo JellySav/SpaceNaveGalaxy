@@ -17,7 +17,7 @@ public class BarreraEnergiaTest extends EntornoGdxPrueba {
     public void limpiarPartida() { ProgresionMejoras.obtenerInstancia().reiniciar(); }
 
     private JefeSector jefe(SectorGalactico sector) {
-        return new JefeSector(400f, 600f, 100f, 30f, 20, sector, textura, textura);
+        return crearJefe(400f, 600f, 100f, 30f, 20, sector, textura, textura);
     }
 
     private BarreraEnergia aLaAltura(float y) {

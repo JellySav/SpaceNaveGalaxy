@@ -51,7 +51,7 @@ public class BarrerasTercerJefeTest extends EntornoGdxPrueba {
     }
 
     @Test public void tercerJefeDisparaConBarrerasYLasRetiraAlMorir() {
-        JefeSector jefe = new JefeSector(500f, 600f, 100f, 30f, 260,
+        JefeSector jefe = crearJefe(500f, 600f, 100f, 30f, 260,
                 SectorGalactico.FRONTERA_DE_KHEPRI, textura, textura);
         List<ProyectilHostil> balas = new ArrayList<>();
         List<CargaEnergia> cargas = new ArrayList<>();

@@ -38,7 +38,7 @@ public class MeteoritosSecundariosTest extends EntornoGdxPrueba {
 
     @Test
     public void tercerJefeNoSaleDelEscenarioAlPerseguir() {
-        JefeSector jefe = new JefeSector(1100f, 600f, 100f, 30f, 10,
+        JefeSector jefe = crearJefe(1100f, 600f, 100f, 30f, 10,
                 SectorGalactico.FRONTERA_DE_KHEPRI, textura, textura);
         jefe.actualizar(1f, 1200f, 800f, 1300f, 650f);
         assertEquals(1100f, jefe.getArea().x, 0f);
@@ -111,7 +111,7 @@ public class MeteoritosSecundariosTest extends EntornoGdxPrueba {
         nave.recibirImpacto();
         nave.recibirImpacto();
         assertTrue(OleadaNaves.estaSuperada(enemigos));
-        enemigos.add(new JefeSector(500f, 600f, 100f, 30f, 40,
+        enemigos.add(crearJefe(500f, 600f, 100f, 30f, 40,
                 SectorGalactico.CINTURON_DE_VELA, textura, textura));
         assertFalse(OleadaNaves.estaSuperada(enemigos));
         assertTrue(OleadaNaves.cantidadInicial(1) > 0); // La primera ronda tiene un objetivo real.
@@ -257,7 +257,7 @@ public class MeteoritosSecundariosTest extends EntornoGdxPrueba {
         ProgresionMejoras progreso=ProgresionMejoras.obtenerInstancia();
         for(int guardadas:new int[]{2,3}) {
             progreso.reiniciar();for(int i=0;i<guardadas;i++)progreso.registrarBateria();
-            JefeSector jefe=new JefeSector(500,500,100,30,40,SectorGalactico.CINTURON_DE_VELA,textura,textura);jefe.recibirDano(400f);
+            JefeSector jefe=crearJefe(500,500,100,30,40,SectorGalactico.CINTURON_DE_VELA,textura,textura);jefe.recibirDano(400f);
             PantallaJuego pantalla=pantallaSinVentana(new ArrayList<>(Arrays.asList(jefe)));
             invocar(pantalla,"resolverDerrota",Enemigo.class,jefe);invocar(pantalla,"resolverDerrota",Enemigo.class,jefe);
             assertEquals(Integer.valueOf(255),leer(pantalla,"score"));assertEquals(3,progreso.getBaterias());

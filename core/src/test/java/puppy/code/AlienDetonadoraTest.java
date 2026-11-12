@@ -55,7 +55,7 @@ public class AlienDetonadoraTest extends EntornoGdxPrueba {
         assertEquals(0,AlienDetonadora.cantidadEnRonda(8));assertEquals(0,AlienDetonadora.cantidadEnRonda(12));assertEquals(6,AlienDetonadora.cantidadEnRonda(13));
     }
     @Test public void tercerJefeGeneraDosCadaTresComaCincoSegundosIndependientesYALosLados() throws Exception {
-        JefeSector jefe=new JefeSector(400,550,150,30,260,SectorGalactico.FRONTERA_DE_KHEPRI,textura,textura);
+        JefeSector jefe=crearJefe(400,550,150,30,260,SectorGalactico.FRONTERA_DE_KHEPRI,textura,textura);
         Field random=JefeSector.class.getDeclaredField("randomRefuerzos");random.setAccessible(true);((Random)random.get(jefe)).setSeed(20);
         List<AlienEnemigo> naves=new ArrayList<>();Set<Class<?>> tipos=new HashSet<>();boolean repetida=false;
         jefe.actualizarRefuerzos(3.4f,200,6,textura,naves::add);assertTrue(naves.isEmpty());

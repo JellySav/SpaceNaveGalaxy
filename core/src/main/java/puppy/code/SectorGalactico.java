@@ -6,15 +6,15 @@ public enum SectorGalactico {
     CINTURON_DE_VELA(1, "Cinturon de Vela",
             "Una baliza de auxilio marca el primer salto. Mantengan la nave operativa.",
             1f, 0, 0, 0f, 0.012f, 0.035f, 0.055f, 0.38f, 0.72f, 0.92f,
-            AtaqueDirigido::new, 0.95f, 0.78f, 0.35f),
+            AtaqueDirigido::new, null, 0.95f, 0.78f, 0.35f),
     NEBULOSA_DE_ION(5, "Nebulosa de Ion",
             "La senal se pierde entre nubes ionizadas. Los aliens refuerzan el bloqueo.",
             1.12f, 1, 0, 0.05f, 0.034f, 0.018f, 0.062f, 0.72f, 0.52f, 0.94f,
-            AtaqueAbanico::new, 0.7f, 0.48f, 1f),
+            AtaqueAbanico::new, AtaqueBarrera::new, 0.7f, 0.48f, 1f),
     FRONTERA_DE_KHEPRI(9, "Frontera de Khepri",
             "La ruta atraviesa territorio hostil: mas resistencia y recursos de salvamento.",
             1.25f, 2, 1, 0.1f, 0.065f, 0.022f, 0.024f, 1f, 0.5f, 0.3f,
-            AtaqueOleadas::new, 1f, 0.47f, 0.28f);
+            AtaqueOleadas::new, () -> new AtaqueBarrera(true), 1f, 0.47f, 0.28f);
 
     private final int rondaInicial;
     private final String nombre;
@@ -30,6 +30,7 @@ public enum SectorGalactico {
     private final float estrellasVerde;
     private final float estrellasAzul;
     private final Supplier<AtaqueJefe> fabricaAtaqueJefe;
+    private final Supplier<AtaqueEspecialJefe> fabricaAtaqueEspecialJefe;
     private final float colorJefeRojo;
     private final float colorJefeVerde;
     private final float colorJefeAzul;
@@ -38,7 +39,8 @@ public enum SectorGalactico {
                     int aliensAdicionales, int resistenciaAlienAdicional,
                     float probabilidadBateriaAdicional, float fondoRojo, float fondoVerde,
                     float fondoAzul, float estrellasRojo, float estrellasVerde, float estrellasAzul,
-                    Supplier<AtaqueJefe> fabricaAtaqueJefe, float colorJefeRojo,
+                    Supplier<AtaqueJefe> fabricaAtaqueJefe,
+                    Supplier<AtaqueEspecialJefe> fabricaAtaqueEspecialJefe, float colorJefeRojo,
                     float colorJefeVerde, float colorJefeAzul) {
         this.rondaInicial = rondaInicial;
         this.nombre = nombre;
@@ -54,6 +56,7 @@ public enum SectorGalactico {
         this.estrellasVerde = estrellasVerde;
         this.estrellasAzul = estrellasAzul;
         this.fabricaAtaqueJefe = fabricaAtaqueJefe;
+        this.fabricaAtaqueEspecialJefe = fabricaAtaqueEspecialJefe;
         this.colorJefeRojo = colorJefeRojo;
         this.colorJefeVerde = colorJefeVerde;
         this.colorJefeAzul = colorJefeAzul;
@@ -92,6 +95,10 @@ public enum SectorGalactico {
 
     public AtaqueJefe crearAtaqueJefe() {
         return fabricaAtaqueJefe.get();
+    }
+
+    public AtaqueEspecialJefe crearAtaqueEspecialJefe() {
+        return fabricaAtaqueEspecialJefe == null ? null : fabricaAtaqueEspecialJefe.get();
     }
 
     public float getColorJefeRojo() {

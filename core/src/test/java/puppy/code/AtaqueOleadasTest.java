@@ -4,12 +4,13 @@ import static org.junit.Assert.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.lang.reflect.Field;
+import java.util.concurrent.atomic.AtomicInteger;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import org.junit.Test;
 
 public class AtaqueOleadasTest extends EntornoGdxPrueba {
     private JefeSector jefe() {
-        return new JefeSector(500f, 600f, 100f, 30f, 260,
+        return crearJefe(500f, 600f, 100f, 30f, 260,
                 SectorGalactico.FRONTERA_DE_KHEPRI, textura, textura);
     }
 
@@ -68,6 +69,31 @@ public class AtaqueOleadasTest extends EntornoGdxPrueba {
         while (jefe.estaActivo()) jefe.recibirImpacto();
         jefe.actualizarAtaque(30f, 600f, 100f, balas::add);
         assertTrue(balas.isEmpty());
+    }
+
+    @Test public void jefeUsaElAtaqueJefeInyectado() {
+        AtomicInteger disparos = new AtomicInteger();
+        AtaqueJefe ataque = new AtaqueJefe() {
+            @Override
+            public void disparar(float origenX, float origenY, float objetivoX, float objetivoY,
+                                 com.badlogic.gdx.graphics.Texture textura,
+                                 java.util.function.Consumer<ProyectilHostil> crearProyectil) {
+                disparos.incrementAndGet();
+            }
+
+            @Override
+            public float getIntervalo() {
+                return 0.1f;
+            }
+        };
+        JefeSector jefe = new JefeSector(500f, 600f, 100f, 30f, 260,
+                SectorGalactico.FRONTERA_DE_KHEPRI, ataque,
+                SectorGalactico.FRONTERA_DE_KHEPRI.crearAtaqueEspecialJefe(),
+                textura, textura);
+
+        jefe.actualizarAtaque(0.11f, 600f, 400f, proyectil -> {});
+
+        assertEquals(1, disparos.get());
     }
 
     @Test public void cadaRafagaApuntaALaPosicionActualDelJugadorEnCualquierDireccion() throws Exception {

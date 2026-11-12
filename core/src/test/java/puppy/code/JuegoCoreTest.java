@@ -66,6 +66,16 @@ public class JuegoCoreTest {
     }
 
     @Test
+    public void fabricaInyectaLaEstrategiaDelNivelDeArma() {
+        assertEquals("SIMPLE", FabricaEstrategiasDisparo.crear(1).getNombre());
+        assertEquals("DOBLE", FabricaEstrategiasDisparo.crear(2).getNombre());
+        assertEquals("TRIPLE", FabricaEstrategiasDisparo.crear(3).getNombre());
+        assertEquals("QUINTUPLE", FabricaEstrategiasDisparo.crear(4).getNombre());
+        assertEquals("SIMPLE", FabricaEstrategiasDisparo.crear(0).getNombre());
+        assertEquals("QUINTUPLE", FabricaEstrategiasDisparo.crear(5).getNombre());
+    }
+
+    @Test
     public void sectoresMarcanRondasDeJefeYEscalan() {
         assertFalse(SectorGalactico.CINTURON_DE_VELA.esRondaDeJefe(3));
         assertTrue(SectorGalactico.CINTURON_DE_VELA.esRondaDeJefe(4));

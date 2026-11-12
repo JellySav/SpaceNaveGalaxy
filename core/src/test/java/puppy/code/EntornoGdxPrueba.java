@@ -93,7 +93,24 @@ public abstract class EntornoGdxPrueba {
 
     protected Nave4 nave(int x, int y, int vidas) {
         return new Nave4(x, y, textura, sonido, textura, sonido, vidas,
-                ProgresionMejoras.obtenerInstancia().getNivelArma());
+                ProgresionMejoras.obtenerInstancia().getNivelArma(),
+                FabricaEstrategiasDisparo.crear(
+                        ProgresionMejoras.obtenerInstancia().getNivelArma()));
+    }
+
+    protected void aplicarMejoras(Nave4 nave) {
+        ProgresionMejoras progreso = ProgresionMejoras.obtenerInstancia();
+        int nivelArma = progreso.getNivelArma();
+        nave.aplicarMejoras(progreso.getVidasMaximas(), nivelArma,
+                FabricaEstrategiasDisparo.crear(nivelArma));
+    }
+
+    protected JefeSector crearJefe(float x, float y, float tamano, float velocidad,
+                                   int resistencia, SectorGalactico sector,
+                                   Texture textura, Texture texturaProyectil) {
+        return new JefeSector(x, y, tamano, velocidad, resistencia, sector,
+                sector.crearAtaqueJefe(), sector.crearAtaqueEspecialJefe(),
+                textura, texturaProyectil);
     }
 
 }
