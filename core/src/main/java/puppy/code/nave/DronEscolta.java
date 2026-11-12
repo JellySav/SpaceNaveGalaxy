@@ -4,6 +4,7 @@ import puppy.code.combate.*;
 import puppy.code.enemigos.*;
 import puppy.code.mejoras.*;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 import com.badlogic.gdx.graphics.Texture;
@@ -20,6 +21,7 @@ public class DronEscolta implements ApoyoNave {
     private float frenteX,frenteY=1f;
     private float cooldownDisparo;
     private float tiempoDesactivado;
+    private final List<RayoLaser> rayosEmitidos=new ArrayList<>();
 
     public DronEscolta(Texture textura) { this(textura,false); }
     public DronEscolta(Texture textura,boolean explosivo) { this(textura,explosivo,false); }
@@ -89,14 +91,14 @@ public class DronEscolta implements ApoyoNave {
                 TipoMejora turno=p.siguienteDisparoMiniDron();
                 boolean quintuple=p.tieneMiniDronQuintuple();
                 if(turno==TipoMejora.DRON_LASER) {
-                    dispararLaser(origenX,origenY,dx,dy,p.getDanoLaser()*0.5f,quintuple,texturaBala,emitirBala);
+                    dispararLaser(origenX,origenY,dx,dy,p.getDanoLaser()*0.5f,quintuple,texturaBala);
                 } else {
                     boolean misil=turno==TipoMejora.DRON_EXPLOSIVO;
                     float dano=turno==TipoMejora.INICIAL_DRON?p.getDanoMiniDron():p.getDanoDron(misil)*0.5f;
                     dispararProyectiles(origenX,origenY,dx,dy,dano,misil,quintuple,texturaBala,emitirBala);
                 }
             } else if(esLaser()) {
-                dispararLaser(origenX,origenY,dx,dy,p.getDanoLaser(),false,texturaBala,emitirBala);
+                dispararLaser(origenX,origenY,dx,dy,p.getDanoLaser(),false,texturaBala);
             } else {
                 dispararProyectiles(origenX,origenY,dx,dy,p.getDanoDron(explosivo),explosivo,false,texturaBala,emitirBala);
             }
@@ -115,13 +117,19 @@ public class DronEscolta implements ApoyoNave {
         else configurar.accept(new Bullet(x,y,dx*420f,dy*420f,textura));
     }
     private void dispararLaser(float x,float y,float dx,float dy,float dano,boolean quintuple,
-                              Texture textura,Consumer<Bullet> emitir) {
+                              Texture textura) {
         int apertura=quintuple?2:0;
         for(int i=-apertura;i<=apertura;i++) {
             float avance=i==0?560f:500f,lateral=i*115f;
-            emitir.accept(new RayoLaser(x+dy*i*10f,y-dx*i*10f,
+            rayosEmitidos.add(new RayoLaser(x+dy*i*10f,y-dx*i*10f,
                     dx*avance+dy*lateral,dy*avance-dx*lateral,dano,textura));
         }
+    }
+
+    @Override public List<RayoLaser> extraerRayos() {
+        List<RayoLaser> resultado=new ArrayList<>(rayosEmitidos);
+        rayosEmitidos.clear();
+        return resultado;
     }
 
     private Enemigo buscarObjetivo(List<Enemigo> enemigos) {

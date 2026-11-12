@@ -1,6 +1,7 @@
 package puppy.code.enemigos;
 
 import puppy.code.*;
+import puppy.code.combate.ExplosionAlien;
 
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
@@ -20,6 +21,10 @@ public final class AlienDetonadora extends AlienEnemigo {
         derecha=new TextureRegion(textura,mitad,0,textura.getWidth()-mitad,textura.getHeight());
     }
     public static int cantidadEnRonda(int ronda){return OleadaNaves.cantidadDetonadoras(ronda);}
+    @Override public ExplosionAlien crearExplosionAlDerrotar(){
+        Rectangle area=getArea();
+        return new ExplosionAlien(area.x+area.width/2f,area.y+area.height/2f,true);
+    }
     public void usarAparienciaAbeja(TextureRegion region){
         usarApariencia(region,48f);aparienciaAbeja=true;
     }

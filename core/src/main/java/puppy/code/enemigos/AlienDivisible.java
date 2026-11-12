@@ -1,6 +1,7 @@
 package puppy.code.enemigos;
 
 import puppy.code.*;
+import java.util.function.Consumer;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -88,4 +89,10 @@ public final class AlienDivisible extends AlienEnemigo {
     }
 
     public boolean esFragmento() { return fragmento; }
+
+    @Override public boolean retirarTrasColisionNave(Consumer<Enemigo> resolverDerrota) {
+        recibirDano(getVidaActual());
+        resolverDerrota.accept(this);
+        return false;
+    }
 }

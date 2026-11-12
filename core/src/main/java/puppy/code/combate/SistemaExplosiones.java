@@ -7,17 +7,14 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.function.Consumer;
-import com.badlogic.gdx.math.Rectangle;
 
 /** Resuelve las cadenas sin modificar las listas que se estan recorriendo. */
 public final class SistemaExplosiones {
     private final List<ExplosionAlien> explosiones = new ArrayList<>();
 
     public void registrarMuerte(Enemigo enemigo) {
-        if (enemigo instanceof AlienExplosivo || enemigo instanceof AlienDetonadora) {
-            Rectangle area = enemigo.getArea();
-            explosiones.add(new ExplosionAlien(area.x + area.width / 2f, area.y + area.height / 2f, enemigo instanceof AlienDetonadora));
-        }
+        ExplosionAlien explosion=enemigo.crearExplosionAlDerrotar();
+        if(explosion!=null)explosiones.add(explosion);
     }
 
     public void actualizar(float delta, List<Enemigo> enemigos, Nave4 nave, ApoyoNave aliado,
@@ -34,13 +31,10 @@ public final class SistemaExplosiones {
             explosion.emitirProyectiles(textura,crearProyectil);
             sonidoExplosion.run();
             if (explosion.alcanza(nave.getArea())) nave.recibirDano();
-            if(aliado instanceof GrupoApoyos)((GrupoApoyos)aliado).recibirExplosion(explosion);
-            else if(aliado!=null && explosion.alcanza(aliado.getArea()))aliado.desactivar(ExplosionAlien.DESACTIVACION_DRON);
+            if(aliado!=null)aliado.recibirExplosion(explosion);
             for (Enemigo enemigo : new ArrayList<>(enemigos)) {
                 if (!enemigo.estaActivo() || !explosion.alcanza(enemigo.getArea())) continue;
-                int dano = enemigo instanceof AlienEnemigo
-                        ? ExplosionAlien.IMPACTOS_NAVES : ExplosionAlien.IMPACTOS_ENEMIGOS;
-                enemigo.recibirDano(dano*10f);
+                enemigo.recibirExplosionAlien();
                 if (enemigo.estaDestruido()) resolverDerrota.accept(enemigo);
             }
         }

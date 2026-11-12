@@ -7,20 +7,22 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Intersector;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 
 /** Impacto instantaneo en toda la trayectoria, con una estela breve sin dano continuo. */
-public final class RayoLaser extends Bullet {
+public final class RayoLaser {
     private final Vector2 inicio,fin;
+    private final float dano;
     private float tiempo=0.16f;
     private boolean aplicado;
     public RayoLaser(float x,float y,float dx,float dy,float dano,Texture textura) {
-        super(x,y,0f,0f,textura);
-        configurar(dano,1f,0f,0f,java.util.concurrent.ThreadLocalRandom.current());
+        if(!Float.isFinite(x)||!Float.isFinite(y)||!Float.isFinite(dano)||dano<=0f||textura==null) {
+            throw new IllegalArgumentException("Configuracion de rayo invalida");
+        }
+        this.dano=dano;
         inicio=new Vector2(x,y);
         Vector2 direccion=new Vector2(dx,dy);
         if(direccion.isZero())direccion.set(0f,1f);
@@ -40,14 +42,13 @@ public final class RayoLaser extends Bullet {
             Rectangle area=new Rectangle(enemigo.getArea());
             area.x-=3f;area.y-=3f;area.width+=6f;area.height+=6f;
             if(!Intersector.intersectSegmentRectangle(inicio,fin,area))continue;
-            enemigo.recibirDano(getDano());
+            enemigo.recibirDano(dano);
             if(enemigo.estaDestruido())alDerrotar.accept(enemigo);
         }
     }
-    @Override public void update(float delta){tiempo=Math.max(0f,tiempo-Math.max(0f,delta));}
-    @Override public boolean isDestroyed(){return tiempo<=0f;}
-    @Override public boolean checkCollision(ObjetivoDisparo objetivo){return false;}
-    @Override public void draw(SpriteBatch batch){ }
+    public void update(float delta){tiempo=Math.max(0f,tiempo-Math.max(0f,delta));}
+    public boolean isDestroyed(){return tiempo<=0f;}
+    public float getDano(){return dano;}
     public void dibujar(ShapeRenderer formas) {
         if(isDestroyed())return;
         float alpha=Math.min(1f,tiempo/0.06f);

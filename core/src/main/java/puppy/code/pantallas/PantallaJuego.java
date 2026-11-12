@@ -54,6 +54,7 @@ public class PantallaJuego implements Screen {
     private final SistemaExplosiones explosiones = new SistemaExplosiones();
     private final ColisionesNaves colisionesNaves = new ColisionesNaves();
     private final List<Bullet> balas = new ArrayList<>();
+    private final List<RayoLaser> rayosLaser = new ArrayList<>();
     private final List<ProyectilHostil> proyectilesHostiles = new ArrayList<>();
     private final IndiceEspacial<Enemigo> indiceEnemigos = new IndiceEspacial<>(128f);
     private final List<BateriaEnergia> baterias = new ArrayList<>();
@@ -304,10 +305,8 @@ public class PantallaJuego implements Screen {
         }
         indiceEnemigos.reconstruir(enemigos);
         for (Enemigo enemigo : enemigos) {
-            if (enemigo instanceof AlienArtillero) {
-                ((AlienArtillero) enemigo).actualizarDisparo(frameDelta,
-                        nave.getCentroX(), nave.getCentroY(), bulletTexture, this::agregarProyectilHostil);
-            }
+            enemigo.actualizarAtaque(frameDelta,nave.getCentroX(),nave.getCentroY(),
+                    bulletTexture,this::agregarProyectilHostil);
         }
         if(jefeSector!=null && jefeSector.getLaserPrimerJefe()!=null)
             jefeSector.getLaserPrimerJefe().comprobarImpacto(nave);
@@ -317,6 +316,7 @@ public class PantallaJuego implements Screen {
         actualizarApoyo(aliadoExplosivo,frameDelta);
         actualizarApoyo(dronLaser,frameDelta);
         actualizarBalas(frameDelta);
+        actualizarRayosLaser(frameDelta);
         List<BarreraEnergia> barreras = jefeSector == null
                 ? java.util.Collections.emptyList() : jefeSector.getBarrerasEnergia();
         if (!barreras.isEmpty()) {
@@ -353,16 +353,8 @@ public class PantallaJuego implements Screen {
         for (int i = enemigos.size() - 1; i >= 0; i--) {
             Enemigo enemigo = enemigos.get(i);
             enemigo.dibujar(batch);
-            if (nave.checkCollision(enemigo)) {
-                if (enemigo instanceof AlienDivisible) {
-                    while (enemigo.estaActivo()) enemigo.recibirImpacto();
-                    resolverDerrota(enemigo);
-                } else if (enemigo instanceof AlienExplosivo) {
-                    resolverDerrota(enemigo);
-                } else if (enemigo != jefeSector) {
-                    enemigos.remove(i);
-                }
-            }
+            if (nave.checkCollision(enemigo)
+                    && enemigo.retirarTrasColisionNave(this::resolverDerrota))enemigos.remove(i);
         }
         dibujaEncabezado();
         batch.end();
@@ -440,6 +432,7 @@ public class PantallaJuego implements Screen {
         if(apoyo==null)return;
         apoyo.orientarDetras(nave.getDireccionFrenteX(),nave.getDireccionFrenteY());
         apoyo.actualizar(delta,nave.getCentroX(),nave.getCentroY(),enemigos,bulletTexture,this::agregarBala);
+        rayosLaser.addAll(apoyo.extraerRayos());
     }
 
     private void actualizarBalas(float delta) {
@@ -448,9 +441,7 @@ public class PantallaJuego implements Screen {
         explosionesBalas.removeIf(ExplosionBala::termino);
         for(int i=balas.size()-1;i>=0;i--) {
             Bullet bala=balas.get(i);bala.update(delta);
-            if(bala instanceof RayoLaser) {
-                ((RayoLaser)bala).aplicar(enemigos,this::resolverDerrota);
-            } else for(Enemigo enemigo:indiceEnemigos.consultar(bala.getArea())) {
+            for(Enemigo enemigo:indiceEnemigos.consultar(bala.getArea())) {
                 if(!bala.checkCollision(enemigo))continue;
                 nuevosFragmentos.addAll(bala.extraerFragmentos());
                 if(enemigo.estaDestruido())resolverDerrota(enemigo);
@@ -465,15 +456,22 @@ public class PantallaJuego implements Screen {
         for(Bullet fragmento:nuevosFragmentos)agregarBala(fragmento);
     }
 
+    private void actualizarRayosLaser(float delta) {
+        for(int i=rayosLaser.size()-1;i>=0;i--) {
+            RayoLaser rayo=rayosLaser.get(i);
+            rayo.update(delta);
+            rayo.aplicar(enemigos,this::resolverDerrota);
+            if(rayo.isDestroyed())rayosLaser.remove(i);
+        }
+    }
+
     private void dibujarRayosLaser() {
-        boolean hayRayos=false;
-        for(Bullet bala:balas)if(bala instanceof RayoLaser){hayRayos=true;break;}
-        if(!hayRayos)return;
+        if(rayosLaser.isEmpty())return;
         shapeRenderer.setProjectionMatrix(camera.combined);
         Gdx.gl.glEnable(GL20.GL_BLEND);
         Gdx.gl.glBlendFunc(GL20.GL_SRC_ALPHA,GL20.GL_ONE_MINUS_SRC_ALPHA);
         shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
-        for(Bullet bala:balas)if(bala instanceof RayoLaser)((RayoLaser)bala).dibujar(shapeRenderer);
+        for(RayoLaser rayo:rayosLaser)rayo.dibujar(shapeRenderer);
         shapeRenderer.end();Gdx.gl.glDisable(GL20.GL_BLEND);
     }
 
@@ -757,8 +755,7 @@ public class PantallaJuego implements Screen {
             enemigo.actualizar(delta, MundoJuego.ANCHO, MundoJuego.ALTO,
                     nave.getCentroX(), nave.getCentroY());
             if (enemigo.estaDestruido()
-                    || (enemigo instanceof AsteroideEnemigo
-                        && ((AsteroideEnemigo) enemigo).haSalidoDelEscenario(MundoJuego.ANCHO, MundoJuego.ALTO))) {
+                    || enemigo.haSalidoDelEscenario(MundoJuego.ANCHO, MundoJuego.ALTO)) {
                 iterator.remove();
             }
         }

@@ -126,4 +126,9 @@ public final class AlienArtillero extends AlienEnemigo {
                 dx, dy, 220f, textura));
         disparoPendiente = false;
     }
+
+    @Override public void actualizarAtaque(float delta,float objetivoX,float objetivoY,
+                                           Texture textura,Consumer<ProyectilHostil> crearProyectil) {
+        actualizarDisparo(delta,objetivoX,objetivoY,textura,crearProyectil);
+    }
 }

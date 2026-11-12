@@ -43,13 +43,17 @@ public class ApoyoReforzadoTest extends EntornoGdxPrueba {
         for(int i=0;i<drones.length;i++) {
             List<Bullet> balas=new ArrayList<>();
             drones[i].actualizar(0.2f,400,400,enemigos,textura,balas::add);
-            assertEquals(cantidades[i],balas.size());
+            List<RayoLaser> rayos=drones[i].extraerRayos();
+            assertEquals(cantidades[i],balas.size()+rayos.size());
             for(Bullet bala:balas)assertEquals(danos[i],bala.getDano(),0.001f);
+            for(RayoLaser rayo:rayos)assertEquals(danos[i],rayo.getDano(),0.001f);
             float intervalo=i==2?2f:1f;
             drones[i].actualizar(intervalo-0.01f,400,400,enemigos,textura,balas::add);
-            assertEquals(cantidades[i],balas.size());
+            rayos.addAll(drones[i].extraerRayos());
+            assertEquals(cantidades[i],balas.size()+rayos.size());
             drones[i].actualizar(0.02f,400,400,enemigos,textura,balas::add);
-            assertEquals(cantidades[i]*2,balas.size());
+            rayos.addAll(drones[i].extraerRayos());
+            assertEquals(cantidades[i]*2,balas.size()+rayos.size());
         }
     }
     @Test public void esEpicaRepetibleYPermaneceEnElSorteo() {

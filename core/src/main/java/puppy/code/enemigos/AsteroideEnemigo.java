@@ -22,11 +22,13 @@ public class AsteroideEnemigo extends Enemigo {
     protected boolean rebotaEnBordes() { return false; }
 
     /** Distingue estar entrando de haber salido por un borde en la direccion del viaje. */
-    public boolean haSalidoDelEscenario(float anchoMundo, float altoMundo) {
+    @Override public boolean haSalidoDelEscenario(float anchoMundo, float altoMundo) {
         Rectangle area = getArea();
         return (getVelocidadX() > 0f && area.x >= anchoMundo)
                 || (getVelocidadX() < 0f && area.x + area.width <= 0f)
                 || (getVelocidadY() > 0f && area.y >= altoMundo)
                 || (getVelocidadY() < 0f && area.y + area.height <= 0f);
     }
+
+    @Override public boolean esMeteorito() { return true; }
 }

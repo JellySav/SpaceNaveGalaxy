@@ -11,94 +11,52 @@ public class JefeSector extends Enemigo {
     public static final float INTERVALO_REFUERZOS = 5f;
     public static final float VELOCIDAD_GIRO=60f;
     private final SectorGalactico sector;
-    private final float velocidadPersecucion;
-
-    private final Texture texturaProyectil;
-    private final AtaqueJefe ataque;
+    private final EstrategiaJefeSector estrategia;
     private final AtaqueEspecialJefe ataqueEspecial;
-    private float tiempoAtaque;
-    private int salvasNormales;
-    private LaserJefe laserPrimerJefe;
-    private float tiempoRefuerzos;
-    private int refuerzosCreados;
     private final java.util.Random randomRefuerzos=new java.util.Random();
+
+    public JefeSector(float x,float y,float tamano,float velocidad,int resistencia,
+                      SectorGalactico sector,AtaqueEspecialJefe ataqueEspecial,
+                      EstrategiaJefeSector estrategia,Texture textura,Texture texturaProyectil) {
+        super(textura,x,y,tamano,tamano,velocidad,0f,resistencia);
+        if(sector==null||estrategia==null||texturaProyectil==null) {
+            throw new IllegalArgumentException("Sector, estrategia y proyectil del jefe son obligatorios");
+        }
+        this.sector=sector;
+        this.estrategia=estrategia;
+        this.ataqueEspecial=ataqueEspecial;
+        setVelocidad(0f,0f);
+        setColor(sector.getColorJefeRojo(),sector.getColorJefeVerde(),sector.getColorJefeAzul(),1f);
+    }
 
     public JefeSector(float x, float y, float tamano, float velocidad,
                       int resistencia, SectorGalactico sector,
                       AtaqueJefe ataque, AtaqueEspecialJefe ataqueEspecial,
                       Texture textura, Texture texturaProyectil) {
-        super(textura, x, y, tamano, tamano, velocidad, 0f, resistencia);
-        if (sector == null || ataque == null || texturaProyectil == null) {
+        this(x,y,tamano,velocidad,resistencia,sector,ataqueEspecial,
+                crearEstrategia(sector,ataque,ataqueEspecial,velocidad,texturaProyectil),
+                textura,texturaProyectil);
+    }
+
+    private static EstrategiaJefeSector crearEstrategia(SectorGalactico sector,AtaqueJefe ataque,
+                                                         AtaqueEspecialJefe especial,float velocidad,
+                                                         Texture texturaProyectil) {
+        if(sector==null||ataque==null||texturaProyectil==null)
             throw new IllegalArgumentException("Sector, ataque y proyectil del jefe son obligatorios");
-        }
-        this.sector = sector;
-        this.velocidadPersecucion=Math.abs(velocidad);
-        if(sector==SectorGalactico.CINTURON_DE_VELA)setVelocidad(0f,0f);
-        this.ataqueEspecial = ataqueEspecial;
-        this.texturaProyectil = texturaProyectil;
-        this.ataque = ataque;
-        setColor(sector.getColorJefeRojo(), sector.getColorJefeVerde(),
-                sector.getColorJefeAzul(), 1f);
-        tiempoAtaque = ataque.getIntervalo();
-        tiempoRefuerzos = getIntervaloRefuerzos();
+        return sector.crearEstrategiaJefe(ataque,especial,velocidad,texturaProyectil);
     }
 
     @Override
     protected void actualizarComportamiento(float delta, float objetivoX, float objetivoY) {
-        if(sector==SectorGalactico.NEBULOSA_DE_ION || sector==SectorGalactico.FRONTERA_DE_KHEPRI){
-            if(ataqueEspecial != null && ataqueEspecial.getBarrera()!=null){setVelocidad(0f,0f);return;}
-            float dx=objetivoX-getCentroX(),dy=objetivoY-getCentroY();
-            float distancia=(float)Math.hypot(dx,dy);
-            if(distancia<0.001f){setVelocidad(0f,0f);return;}
-            float velocidad=Math.min(velocidadPersecucion,distancia/delta);
-            setVelocidad(dx/distancia*velocidad,dy/distancia*velocidad);
-            return;
-        }
-        if (sector != SectorGalactico.CINTURON_DE_VELA) return;
-        setVelocidad(0f,0f);
-        if(laserPrimerJefe==null || !laserPrimerJefe.estaAvisando())
-            girarAparienciaHacia(objetivoX,objetivoY,VELOCIDAD_GIRO,delta);
+        estrategia.actualizarMovimiento(this,delta,objetivoX,objetivoY);
     }
 
     public void actualizarAtaque(float delta, float objetivoX, float objetivoY,
                                  Consumer<ProyectilHostil> crearProyectil) {
-        if (!estaActivo()) {
-            return;
-        }
-        if(delta<=0f)return;
-        if(laserPrimerJefe!=null){
-            laserPrimerJefe.actualizar(delta);
-            if(laserPrimerJefe.termino())laserPrimerJefe=null;
-            return;
-        }
-        tiempoAtaque -= delta;
-        if (tiempoAtaque <= 0f) {
-            float origenX=getCentroX(),origenY=getCentroY();
-            if(sector==SectorGalactico.CINTURON_DE_VELA) {
-                com.badlogic.gdx.math.Vector2 direccion=direccionApariencia();
-                float dx=direccion.x,dy=direccion.y;
-                com.badlogic.gdx.math.Vector2 boca=puntoApariencia(0.5f,0.988f);
-                origenX=boca.x;origenY=boca.y;
-                objetivoX=origenX+dx*100f;objetivoY=origenY+dy*100f;
-                final float bocaX=origenX,bocaY=origenY;
-                if(salvasNormales==4){
-                    salvasNormales=0;
-                    laserPrimerJefe=new LaserJefe(bocaX,bocaY,dx,dy);
-                } else {
-                    ataque.disparar(origenX,origenY,objetivoX,objetivoY,texturaProyectil,proyectil->{
-                        proyectil.centrarEn(bocaX,bocaY);crearProyectil.accept(proyectil);
-                    });
-                    salvasNormales++;
-                }
-            } else {
-                ataque.disparar(origenX, origenY, objetivoX, objetivoY,
-                        texturaProyectil, crearProyectil);
-            }
-            tiempoAtaque = ataque.getIntervalo();
-        }
+        estrategia.actualizarAtaque(this,delta,objetivoX,objetivoY,crearProyectil);
     }
 
-    public LaserJefe getLaserPrimerJefe(){return estaActivo()?laserPrimerJefe:null;}
+    public LaserJefe getLaserPrimerJefe(){return estaActivo()?estrategia.getLaser():null;}
 
     public SectorGalactico getSector() {
         return sector;
@@ -120,64 +78,24 @@ public class JefeSector extends Enemigo {
                 : java.util.Collections.emptyList();
     }
 
-    /** Los primeros jefes invocan por debajo; el tercero genera dos naves aleatorias a los lados. */
     public void actualizarRefuerzos(float delta, float velocidadAlien, int resistenciaAlien,
                                     Texture texturaAlien, Consumer<AlienEnemigo> crearRefuerzo) {
-        if (!estaActivo() || delta <= 0f) {
-            return;
-        }
-        tiempoRefuerzos -= delta;
-        while (tiempoRefuerzos <= 0f) {
-            if(sector==SectorGalactico.FRONTERA_DE_KHEPRI) {
-                float y=getCentroY()-24f;
-                float izquierda=Math.max(0f,getArea().x-56f);
-                float derecha=Math.min(MundoJuego.ANCHO-48f,getArea().x+getArea().width+8f);
-                emitirRefuerzo(crearRefuerzoAleatorio(izquierda,y,velocidadAlien,resistenciaAlien,texturaAlien),crearRefuerzo);
-                emitirRefuerzo(crearRefuerzoAleatorio(derecha,y,velocidadAlien,resistenciaAlien,texturaAlien),crearRefuerzo);
-                refuerzosCreados+=2;
-                tiempoRefuerzos+=getIntervaloRefuerzos();
-                continue;
-            }
-            float x = Math.max(0f, Math.min(MundoJuego.ANCHO - 48f, getCentroX() - 24f));
-            float y = Math.max(0f, Math.min(MundoJuego.ALTO - 48f, getArea().y - 48f));
-            boolean segundo = sector == SectorGalactico.NEBULOSA_DE_ION;
-            boolean naranja = segundo && refuerzosCreados % 3 == 2;
-            boolean roja = segundo && refuerzosCreados % 3 == 1;
-            AlienEnemigo refuerzo = naranja
-                    ? new AlienArtillero(x,y,texturaAlien,new java.util.Random())
-                    : roja
-                    ? new AlienExplosivo(x, y, 48f, velocidadAlien, AlienExplosivo.RESISTENCIA, texturaAlien)
-                    : new AlienEnemigo(x, y, velocidadAlien, resistenciaAlien, texturaAlien);
-            emitirRefuerzo(refuerzo,crearRefuerzo);
-            refuerzosCreados++;
-            tiempoRefuerzos += getIntervaloRefuerzos();
-        }
-    }
-
-    private void emitirRefuerzo(AlienEnemigo refuerzo,Consumer<AlienEnemigo> emitir) {
-        refuerzo.configurarVidaParaRonda(getRondaDeVida());
-        emitir.accept(refuerzo);
-    }
-
-    private AlienEnemigo crearRefuerzoAleatorio(float x,float y,float velocidad,int resistencia,Texture textura) {
-        switch(randomRefuerzos.nextInt(5)) {
-            case 1:return new AlienExplosivo(x,y,48f,velocidad,AlienExplosivo.RESISTENCIA,textura);
-            case 2:return new AlienDivisible(x,y,velocidad,textura);
-            case 3:return new AlienArtillero(x,y,textura,new java.util.Random(randomRefuerzos.nextLong()));
-            case 4:return new AlienDetonadora(x, y, 48f, velocidad,
-                    AlienDetonadora.RESISTENCIA, textura);
-            default:return new AlienEnemigo(x,y,velocidad,resistencia,textura);
-        }
+        estrategia.actualizarRefuerzos(this,delta,velocidadAlien,resistenciaAlien,
+                texturaAlien,crearRefuerzo);
     }
 
     public float getIntervaloRefuerzos() {
-        if (sector == SectorGalactico.NEBULOSA_DE_ION) return 5f;
-        if (sector == SectorGalactico.FRONTERA_DE_KHEPRI) return 3.5f;
-        return INTERVALO_REFUERZOS;
+        return estrategia.getIntervaloRefuerzos();
     }
+
+    java.util.Random getRandomRefuerzos(){return randomRefuerzos;}
 
     public String getNombre() {
         return "GUARDIAN DE " + sector.getNombre().toUpperCase();
+    }
+
+    @Override public boolean retirarTrasColisionNave(Consumer<Enemigo> resolverDerrota) {
+        return false;
     }
 
     @Override

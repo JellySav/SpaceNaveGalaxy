@@ -17,6 +17,7 @@ abstract class ConstructorJefeSector implements ConstructorJefe {
     private int resistencia;
     private AtaqueJefe ataque;
     private AtaqueEspecialJefe ataqueEspecial;
+    private EstrategiaJefeSector estrategiaJefe;
     private Texture texturaJefe;
     private Texture texturaProyectil;
 
@@ -40,6 +41,7 @@ abstract class ConstructorJefeSector implements ConstructorJefe {
         resistencia = 0;
         ataque = null;
         ataqueEspecial = null;
+        estrategiaJefe = null;
         texturaJefe = null;
         texturaProyectil = null;
     }
@@ -59,6 +61,7 @@ abstract class ConstructorJefeSector implements ConstructorJefe {
         SectorGalactico sector = getSector();
         ataque = sector.crearAtaqueJefe();
         ataqueEspecial = sector.crearAtaqueEspecialJefe();
+        estrategiaJefe=sector.crearEstrategiaJefe(ataque,ataqueEspecial,velocidad,texturaProyectilFuente);
     }
 
     @Override
@@ -72,12 +75,12 @@ abstract class ConstructorJefeSector implements ConstructorJefe {
 
     @Override
     public final JefeSector obtenerResultado() {
-        if (tamano <= 0f || resistencia <= 0 || ataque == null
+        if (tamano <= 0f || resistencia <= 0 || ataque == null || estrategiaJefe == null
                 || texturaJefe == null || texturaProyectil == null) {
             throw new IllegalStateException("El jefe debe completar todos los pasos de construccion");
         }
-        JefeSector jefe = new JefeSector(x, y, tamano, velocidad, resistencia,
-                getSector(), ataque, ataqueEspecial, texturaJefe, texturaProyectil);
+        JefeSector jefe = new JefeSector(x,y,tamano,velocidad,resistencia,getSector(),
+                ataqueEspecial,estrategiaJefe,texturaJefe,texturaProyectil);
         jefe.configurarVidaParaRonda(ronda);
         return jefe;
     }

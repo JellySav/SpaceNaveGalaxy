@@ -32,7 +32,7 @@ public final class LluviaMeteoritos {
         espera = intervalo;
         int presentes = 0;
         for (Enemigo enemigo : enemigos) {
-            if (enemigo instanceof AsteroideEnemigo && enemigo.estaActivo()) presentes++;
+            if (enemigo.esMeteorito() && enemigo.estaActivo()) presentes++;
         }
         if (presentes < maximoPresentes) {
             AsteroideEnemigo meteorito=crearMeteorito(textura,jugador);

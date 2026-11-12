@@ -1,6 +1,7 @@
 package puppy.code.enemigos;
 
 import puppy.code.*;
+import puppy.code.combate.*;
 
 import com.badlogic.gdx.graphics.Texture;
 
@@ -69,6 +70,14 @@ public class AlienEnemigo extends Enemigo {
 
     public boolean estaEntrando() {
         return entrando;
+    }
+
+    @Override public boolean participaColisionesNaves() {
+        return true;
+    }
+
+    @Override public void recibirExplosionAlien() {
+        recibirDano(ExplosionAlien.IMPACTOS_NAVES * 10f);
     }
 
     @Override

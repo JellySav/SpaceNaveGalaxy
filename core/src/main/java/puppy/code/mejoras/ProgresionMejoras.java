@@ -50,53 +50,54 @@ public final class ProgresionMejoras {
     public boolean tieneMiniDronQuintuple(){return avanzado && tieneMiniDron();}
     public float getCosteDash(){return EnergiaDash.COSTE-(masDashes?10f:0f)-(avanzado && tieneEscudoDash()?20f:0f);}
     public boolean elegirMejora(TipoMejora tipo) {
-        if(tipo!=null && tipo.rareza==RarezaMejora.INICIAL) {
-            if(tieneMejoraInicial())return false;
-            mejoraInicial=tipo;
-            if(tipo==TipoMejora.INICIAL_DASH)velocidad+=VELOCIDAD_BASE*0.15f;
-            if(tipo==TipoMejora.INICIAL_CRITICO)cadencia+=CADENCIA_BASE*0.10f;
+        if(tipo==null || !tipo.disponible(this))return false;
+        if(tipo.rareza==RarezaMejora.INICIAL) {
+            tipo.aplicar(this);
             return true;
         }
-        if(pendientes==0 || tipo==null || !tipo.disponible(this))return false;
-        switch(tipo) {
-            case CADENCIA:cadencia+=getCadenciaBaseNave()*0.15f;break;
-            case VIDA:vidasMaximas++;break;
-            case MOVIMIENTO:velocidad+=getVelocidadBaseNave()*0.05f;break;
-            case DANO:dano+=DANO_BASE*0.15f;break;
-            case PROBABILIDAD_CRITICO:mejorasProbabilidadCritico++;break;
-            case DANO_CRITICO:mejorasDanoCritico++;break;
-            case DASH:danoDash+=DASH_BASE*0.5f;break;
-            case ROBAR_ENERGIA:mejorasRobarEnergia++;break;
-            case DASH_EXPLOSIVO:mejorasDashExplosivo++;break;
-            case DISTANCIA_DASH:mejorasDistanciaDash++;break;
-            case MAS_DASHES:masDashes=true;break;
-            case AVANZADO:avanzado=true;break;
-            case REPARACION:reparacionMejorada=true;break;
-            case DRON:
-                if(dron){danoDron+=DANO_DRON_BASE*0.2f;cadenciaDron+=CADENCIA_DRON_BASE*0.2f;}
-                else dron=true;break;
-            case DANO_EPICO:dano+=DANO_BASE*0.3f;break;
-            case VIDA_EPICA:vidasMaximas+=2;break;
-            case CADENCIA_EPICA:cadencia+=getCadenciaBaseNave()*0.3f;break;
-            case TAMANO:tamano+=0.8f;break;
-            case PENETRACION:penetracion=Math.min(1f,penetracion+0.4f);break;
-            case RACIMO:racimo=true;break;
-            case EXPLOSION:explosion=Math.min(1f,explosion+0.1f);break;
-            case APOYO_REFORZADO:mejorasApoyo++;break;
-            case DRON_EXPLOSIVO:
-                if(dronExplosivo){danoDronExplosivo+=DANO_DRON_BASE*0.2f;cadenciaDronExplosivo+=CADENCIA_DRON_BASE*0.2f;}
-                else dronExplosivo=true;break;
-            case DRON_LASER:
-                if(dronLaser){danoLaser+=DANO_DRON_BASE*3f*0.2f;cadenciaLaser+=CADENCIA_DRON_BASE*0.2f;}
-                else dronLaser=true;break;
-            case CUERPO_A_CUERPO:cuerpoACuerpo=true;vidasMaximas+=3;break;
-            case DOBLE:doble=true;break;
-            case TRIPLE:triple=true;break;
-            case DANO_DOBLE:dano*=2f;break;
-            case CADENCIA_DOBLE:cadencia*=2f;break;
-        }
+        if(pendientes==0)return false;
+        tipo.aplicar(this);
         pendientes--;return true;
     }
+
+    void mejorarDashInicial(){mejoraInicial=TipoMejora.INICIAL_DASH;velocidad+=VELOCIDAD_BASE*0.15f;}
+    void mejorarDronInicial(){mejoraInicial=TipoMejora.INICIAL_DRON;}
+    void mejorarCriticoInicial(){mejoraInicial=TipoMejora.INICIAL_CRITICO;cadencia+=CADENCIA_BASE*0.10f;}
+    void aumentarCadencia(float factor){cadencia+=getCadenciaBaseNave()*factor;}
+    void aumentarVidas(int cantidad){vidasMaximas+=cantidad;}
+    void aumentarVelocidad(float factor){velocidad+=getVelocidadBaseNave()*factor;}
+    void aumentarDano(float factor){dano+=DANO_BASE*factor;}
+    void aumentarProbabilidadCritico(){mejorasProbabilidadCritico++;}
+    void aumentarDanoCritico(){mejorasDanoCritico++;}
+    void aumentarDanoDash(float factor){danoDash+=DASH_BASE*factor;}
+    void aumentarRoboEnergia(){mejorasRobarEnergia++;}
+    void aumentarDashExplosivo(){mejorasDashExplosivo++;}
+    void aumentarDistanciaDash(){mejorasDistanciaDash++;}
+    void mejorarDron(){
+        if(dron){danoDron+=DANO_DRON_BASE*0.2f;cadenciaDron+=CADENCIA_DRON_BASE*0.2f;}
+        else dron=true;
+    }
+    void activarMasDashes(){masDashes=true;}
+    void activarReparacionMejorada(){reparacionMejorada=true;}
+    void aumentarTamano(){tamano+=0.8f;}
+    void aumentarPenetracion(){penetracion=Math.min(1f,penetracion+0.4f);}
+    void activarRacimo(){racimo=true;}
+    void aumentarExplosion(){explosion=Math.min(1f,explosion+0.1f);}
+    void aumentarApoyo(){mejorasApoyo++;}
+    void mejorarDronExplosivo(){
+        if(dronExplosivo){danoDronExplosivo+=DANO_DRON_BASE*0.2f;cadenciaDronExplosivo+=CADENCIA_DRON_BASE*0.2f;}
+        else dronExplosivo=true;
+    }
+    void mejorarDronLaser(){
+        if(dronLaser){danoLaser+=DANO_DRON_BASE*3f*0.2f;cadenciaLaser+=CADENCIA_DRON_BASE*0.2f;}
+        else dronLaser=true;
+    }
+    void activarCuerpoACuerpo(){cuerpoACuerpo=true;vidasMaximas+=3;}
+    void activarAvanzado(){avanzado=true;}
+    void activarDoble(){doble=true;}
+    void activarTriple(){triple=true;}
+    void duplicarDano(){dano*=2f;}
+    void duplicarCadencia(){cadencia*=2f;}
     public void reiniciar() {
         nivel=1;experiencia=pendientes=baterias=0;vidasMaximas=3;
         cuerpoACuerpo=false;mejoraInicial=null;masDashes=avanzado=racimo=false;

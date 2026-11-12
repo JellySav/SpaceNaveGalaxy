@@ -44,19 +44,42 @@ public class DronLaserTest extends EntornoGdxPrueba {
     }
     @Test public void dronEmiteRayosALaCadenciaNormalYRespetaDesactivacion() {
         elegir(TipoMejora.DRON_LASER);DronLaser dron=new DronLaser(textura);
-        List<Enemigo> enemigos=Arrays.asList(new AlienEnemigo(600,600,100,6,textura));List<Bullet> rayos=new ArrayList<>();
-        dron.actualizar(0.2f,400,400,enemigos,textura,rayos::add);assertEquals(1,rayos.size());assertTrue(rayos.get(0) instanceof RayoLaser);
+        List<Enemigo> enemigos=Arrays.asList(new AlienEnemigo(600,600,100,6,textura));List<RayoLaser> rayos=new ArrayList<>();
+        dron.actualizar(0.2f,400,400,enemigos,textura,b->fail("El dron laser no emite balas"));
+        rayos.addAll(dron.extraerRayos());assertEquals(1,rayos.size());
         assertEquals(30f,rayos.get(0).getDano(),0f);assertEquals(384f,dron.getArea().x,0.001f);assertEquals(272f,dron.getArea().y,0.001f);
-        dron.actualizar(1.09f,400,400,enemigos,textura,rayos::add);assertEquals(1,rayos.size());
-        dron.actualizar(0.02f,400,400,enemigos,textura,rayos::add);assertEquals(2,rayos.size());
-        dron.desactivar(3f);dron.actualizar(2f,400,400,enemigos,textura,rayos::add);assertEquals(2,rayos.size());
-        dron.actualizar(1.01f,400,400,enemigos,textura,rayos::add);assertEquals(3,rayos.size());
+        dron.actualizar(1.09f,400,400,enemigos,textura,b->fail("El dron laser no emite balas"));
+        rayos.addAll(dron.extraerRayos());assertEquals(1,rayos.size());
+        dron.actualizar(0.02f,400,400,enemigos,textura,b->fail("El dron laser no emite balas"));
+        rayos.addAll(dron.extraerRayos());assertEquals(2,rayos.size());
+        dron.desactivar(3f);dron.actualizar(2f,400,400,enemigos,textura,b->fail("El dron laser no emite balas"));
+        rayos.addAll(dron.extraerRayos());assertEquals(2,rayos.size());
+        dron.actualizar(1.01f,400,400,enemigos,textura,b->fail("El dron laser no emite balas"));
+        rayos.addAll(dron.extraerRayos());assertEquals(3,rayos.size());
         List<Bullet> ninguna=new ArrayList<>();dron.actualizar(2f,400,400,Collections.emptyList(),textura,ninguna::add);assertTrue(ninguna.isEmpty());
     }
     @Test public void laserConviveConTodosLosDronesYSeDesactivaConElGrupo() {
         DronEscolta normal=new DronEscolta(textura),explosivo=new DronEscolta(textura,true),mini=new DronEscolta(textura,false,true);
         DronLaser laser=new DronLaser(textura);GrupoApoyos grupo=new GrupoApoyos(normal,explosivo,mini,laser);
         grupo.desactivar(3f);for(ApoyoNave apoyo:new ApoyoNave[]{normal,explosivo,mini,laser})assertEquals(3f,apoyo.getTiempoDesactivado(),0f);
+    }
+
+    @Test public void grupoDelegaActualizacionYRayosALosApoyos() {
+        DronEscolta normal=new DronEscolta(textura);
+        DronLaser laser=new DronLaser(textura);
+        GrupoApoyos grupo=new GrupoApoyos(normal,laser);
+        List<Enemigo> enemigos=Arrays.asList(new AlienEnemigo(600,600,100,6,textura));
+        List<Bullet> balas=new ArrayList<>();
+        grupo.actualizar(0.2f,400,400,enemigos,textura,balas::add);
+        assertEquals(1,balas.size());
+        assertEquals(1,grupo.extraerRayos().size());
+        com.badlogic.gdx.math.Rectangle areaGrupo=grupo.getArea();
+        for(ApoyoNave apoyo:new ApoyoNave[]{normal,laser}) {
+            com.badlogic.gdx.math.Rectangle area=apoyo.getArea();
+            assertTrue(areaGrupo.x<=area.x+0.001f&&areaGrupo.y<=area.y+0.001f);
+            assertTrue(areaGrupo.x+areaGrupo.width>=area.x+area.width-0.001f);
+            assertTrue(areaGrupo.y+areaGrupo.height>=area.y+area.height-0.001f);
+        }
     }
 
     @Test public void todosLosDronesGiranDetrasDeLaNaveManteniendoLaSeparacion() {

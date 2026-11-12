@@ -33,7 +33,7 @@ public final class OleadaNaves {
 
     public static boolean estaSuperada(List<Enemigo> enemigos) {
         for (Enemigo enemigo : enemigos) {
-            if (enemigo.estaActivo() && !(enemigo instanceof AsteroideEnemigo)) return false;
+            if (enemigo.estaActivo() && !enemigo.esMeteorito()) return false;
         }
         return true;
     }

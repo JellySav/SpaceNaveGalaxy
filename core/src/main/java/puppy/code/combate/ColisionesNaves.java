@@ -11,11 +11,11 @@ public final class ColisionesNaves {
     private static final float MARGEN = 0.02f;
 
     public void resolver(List<Enemigo> enemigos, float anchoMundo, float altoMundo) {
-        List<AlienEnemigo> naves = new ArrayList<>();
+        List<Enemigo> naves = new ArrayList<>();
         for (Enemigo enemigo : enemigos) {
-            if (enemigo instanceof AlienEnemigo && enemigo.estaActivo()
-                    && !((AlienEnemigo) enemigo).estaEntrando()) {
-                naves.add((AlienEnemigo) enemigo);
+            if (enemigo.participaColisionesNaves() && enemigo.estaActivo()
+                    && !enemigo.estaEntrando()) {
+                naves.add(enemigo);
             }
         }
         // Repetir permite liberar tambien grupos apretados contra un borde.
@@ -24,8 +24,8 @@ public final class ColisionesNaves {
             boolean contacto = false;
             for (int i = 0; i < naves.size(); i++) {
                 for (int j = i + 1; j < naves.size(); j++) {
-                    AlienEnemigo a = naves.get(i);
-                    AlienEnemigo b = naves.get(j);
+                    Enemigo a = naves.get(i);
+                    Enemigo b = naves.get(j);
                     Rectangle areaA = a.getArea();
                     Rectangle areaB = b.getArea();
                     if (!areaA.overlaps(areaB)) continue;
@@ -45,7 +45,7 @@ public final class ColisionesNaves {
         }
     }
 
-    private void separar(AlienEnemigo a, AlienEnemigo b, boolean horizontal,
+    private void separar(Enemigo a, Enemigo b, boolean horizontal,
                          float penetracion, float anchoMundo, float altoMundo) {
         Rectangle areaA = a.getArea();
         Rectangle areaB = b.getArea();

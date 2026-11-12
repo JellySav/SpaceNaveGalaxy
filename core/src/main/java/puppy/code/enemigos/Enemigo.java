@@ -6,6 +6,7 @@ import puppy.code.mejoras.*;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.function.Consumer;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
@@ -223,6 +224,38 @@ public abstract class Enemigo implements ObjetivoDisparo {
 
     public List<Enemigo> crearEnemigosAlDerrotar() {
         return Collections.emptyList();
+    }
+
+    public ExplosionAlien crearExplosionAlDerrotar() {
+        return null;
+    }
+
+    public void recibirExplosionAlien() {
+        recibirDano(ExplosionAlien.IMPACTOS_ENEMIGOS * 10f);
+    }
+
+    public boolean retirarTrasColisionNave(Consumer<Enemigo> resolverDerrota) {
+        return true;
+    }
+
+    public void actualizarAtaque(float delta, float objetivoX, float objetivoY, Texture textura,
+                                 Consumer<ProyectilHostil> crearProyectil) {
+    }
+
+    public boolean participaColisionesNaves() {
+        return false;
+    }
+
+    public boolean estaEntrando() {
+        return false;
+    }
+
+    public boolean esMeteorito() {
+        return false;
+    }
+
+    public boolean haSalidoDelEscenario(float anchoMundo, float altoMundo) {
+        return false;
     }
 
     public void registrarDerrota(ProgresionMejoras progresion) {

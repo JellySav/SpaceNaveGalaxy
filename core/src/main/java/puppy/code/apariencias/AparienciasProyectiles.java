@@ -31,7 +31,7 @@ public final class AparienciasProyectiles implements Disposable {
         } finally {imagen.dispose();}
     }
     public void aplicar(Bullet bala) {
-        if(!(bala instanceof RayoLaser))bala.usarApariencia(bala.esCritico()?critico:normal);
+        bala.usarApariencia(bala.esCritico()?critico:normal);
     }
     @Override public void dispose(){normal.getTexture().dispose();critico.getTexture().dispose();}
 }
