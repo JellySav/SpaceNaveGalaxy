@@ -1,9 +1,0 @@
-MainShip3.png
-Rocket2.png
-piano-loops.wav
-pop-sound.mp3
-explosion.ogg
-aGreyMedium4.png
-aGreyLarge.png
-aGreySmall.png
-hurt.ogg
