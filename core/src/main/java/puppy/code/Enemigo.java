@@ -110,6 +110,17 @@ public abstract class Enemigo implements ObjetivoDisparo {
         return Math.max(0f, (float) resistencia / resistenciaMaxima);
     }
 
+    public int getPuntosDerrota() {
+        return 10;
+    }
+
+    public float getProbabilidadBateria() {
+        return 0.12f;
+    }
+
+    public void registrarDerrota(ProgresionMejoras progresion) {
+    }
+
     protected final float getVelocidadX() {
         return velocidadX;
     }

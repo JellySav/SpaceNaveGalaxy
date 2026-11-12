@@ -16,19 +16,22 @@ public class Nave4 {
     private final Sound sonidoHerido;
     private final Sound sonidoDisparo;
     private final Texture texturaBala;
-    private final EstadoVidas estadoVidas = new EstadoVidas(3);
+    private final EstadoVidas estadoVidas;
     private float tiempoInvulnerable;
     private boolean reparando;
     private int nivelArma = 1;
     private EstrategiaDisparo estrategiaDisparo = new DisparoSimple();
 
     public Nave4(int x, int y, Texture textura, Sound sonidoHerido,
-                 Texture texturaBala, Sound sonidoDisparo) {
+                 Texture texturaBala, Sound sonidoDisparo, int vidasIniciales,
+                 int nivelArmaInicial) {
         this.sprite = new Sprite(textura);
         this.sprite.setBounds(x, y, 45f, 45f);
         this.sonidoHerido = sonidoHerido;
         this.texturaBala = texturaBala;
         this.sonidoDisparo = sonidoDisparo;
+        this.estadoVidas = new EstadoVidas(vidasIniciales);
+        configurarArma(nivelArmaInicial);
     }
 
     public void draw(SpriteBatch batch, PantallaJuego juego) {
@@ -95,7 +98,15 @@ public class Nave4 {
         return true;
     }
 
-    public void setNivelArma(int nivel) {
+    public boolean instalarMejoraArma() {
+        if (nivelArma >= 3) {
+            return false;
+        }
+        configurarArma(nivelArma + 1);
+        return true;
+    }
+
+    private void configurarArma(int nivel) {
         nivelArma = Math.max(1, Math.min(3, nivel));
         if (nivelArma == 1) {
             estrategiaDisparo = new DisparoSimple();
@@ -122,24 +133,28 @@ public class Nave4 {
         return sprite.getBoundingRectangle();
     }
 
-    public void setReparando(boolean reparando) {
-        this.reparando = reparando;
+    public boolean iniciarReparacion() {
+        if (reparando || !estadoVidas.puedeReparar()) {
+            return false;
+        }
+        reparando = true;
+        return true;
     }
 
     public boolean isReparando() {
         return reparando;
     }
 
-    public void reparar() {
-        estadoVidas.reparar();
+    public boolean completarReparacion() {
+        if (!reparando) {
+            return false;
+        }
+        reparando = false;
+        return estadoVidas.reparar();
     }
 
     public boolean puedeReparar() {
         return estadoVidas.puedeReparar();
-    }
-
-    public void setVidas(int vidas) {
-        estadoVidas.establecerVidas(vidas);
     }
 
     public int getNivelArma() {

@@ -37,7 +37,7 @@ public class PantallaJuego implements Screen {
     private final List<Enemigo> enemigos = new ArrayList<>();
     private final List<Bullet> balas = new ArrayList<>();
     private final List<ProyectilHostil> proyectilesHostiles = new ArrayList<>();
-    private final IndiceEspacial indiceEnemigos = new IndiceEspacial(128f);
+    private final IndiceEspacial<Enemigo> indiceEnemigos = new IndiceEspacial<>(128f);
     private final List<BateriaEnergia> baterias = new ArrayList<>();
     private final ProgresionMejoras progresion = ProgresionMejoras.obtenerInstancia();
     private final ShapeRenderer shapeRenderer = new ShapeRenderer();
@@ -90,9 +90,7 @@ public class PantallaJuego implements Screen {
 
         crearCampoEstelar(MundoJuego.ANCHO, MundoJuego.ALTO);
         nave = new Nave4((int) (MundoJuego.ANCHO / 2f - 22f), 30, naveTexture,
-                naveHitSound, bulletTexture, bulletSound);
-        nave.setVidas(vidas);
-        nave.setNivelArma(progresion.getNivelArma());
+                naveHitSound, bulletTexture, bulletSound, vidas, progresion.getNivelArma());
         if (nave.getNivelArma() >= 3) {
             aliado = new DronEscolta(naveTexture);
         }
@@ -256,7 +254,7 @@ public class PantallaJuego implements Screen {
             Enemigo enemigo = enemigos.get(i);
             enemigo.dibujar(batch);
             if (nave.checkCollision(enemigo)) {
-                if (!(enemigo instanceof JefeSector)) {
+                if (enemigo != jefeSector) {
                     enemigos.remove(i);
                 }
             }
@@ -295,24 +293,15 @@ public class PantallaJuego implements Screen {
         for (int i = balas.size() - 1; i >= 0; i--) {
             Bullet bala = balas.get(i);
             bala.update(delta);
-            List<ObjetivoDisparo> objetivos = indiceEnemigos.consultar(bala.getArea());
-            for (ObjetivoDisparo objetivo : objetivos) {
-                if (!(objetivo instanceof Enemigo)) {
-                    continue;
-                }
-                Enemigo enemigo = (Enemigo) objetivo;
+            List<Enemigo> objetivos = indiceEnemigos.consultar(bala.getArea());
+            for (Enemigo enemigo : objetivos) {
                 if (bala.checkCollision(enemigo)) {
                     registrarImpacto();
                     if (enemigo.estaDestruido()) {
                         registrarDerrota(enemigo);
                         explosionSound.play(game.getPreferencias().getVolumenEfectos());
-                        if (enemigo instanceof AlienEnemigo) {
-                            boolean mejoraLista = progresion.puedeInstalarMejora();
-                            progresion.registrarAlienDerrotado();
-                            notificarMejoraLista(mejoraLista);
-                        }
-                        float probabilidadBateria = (enemigo instanceof AlienEnemigo ? 0.55f : 0.12f)
-                            + sector.getProbabilidadBateriaAdicional();
+                        float probabilidadBateria = enemigo.getProbabilidadBateria()
+                                + sector.getProbabilidadBateriaAdicional();
                         if (random.nextFloat() < probabilidadBateria) {
                             Rectangle area = enemigo.getArea();
                             baterias.add(new BateriaEnergia(area.x + area.width / 2f,
@@ -339,17 +328,12 @@ public class PantallaJuego implements Screen {
     }
 
     private void registrarDerrota(Enemigo enemigo) {
-        if (enemigo instanceof JefeSector) {
-            score += 250;
-            progresion.registrarJefeDerrotado();
+        boolean mejoraLista = progresion.puedeInstalarMejora();
+        score += enemigo.getPuntosDerrota();
+        enemigo.registrarDerrota(progresion);
+        notificarMejoraLista(mejoraLista);
+        if (enemigo == jefeSector) {
             mostrarMensaje("JEFE DERROTADO: NUCLEO Y BATERIA RECUPERADOS");
-        } else if (enemigo instanceof AlienEnemigo) {
-            score += 25;
-            boolean mejoraLista = progresion.puedeInstalarMejora();
-            progresion.registrarAlienDerrotado();
-            notificarMejoraLista(mejoraLista);
-        } else {
-            score += 10;
         }
     }
 
@@ -392,7 +376,9 @@ public class PantallaJuego implements Screen {
             return;
         }
 
-        nave.setNivelArma(progresion.getNivelArma());
+        if (!nave.instalarMejoraArma()) {
+            throw new IllegalStateException("El nivel de arma de la nave no coincide con la progresion");
+        }
         if (progresion.getNivelArma() >= 3 && aliado == null) {
             aliado = new DronEscolta(naveTexture);
         }
@@ -412,9 +398,11 @@ public class PantallaJuego implements Screen {
             } else if (!progresion.consumirBateria()) {
                 mostrarMensaje("SIN BATERIAS: DESTRUYE ENEMIGOS PARA ENCONTRAR UNA");
             } else {
+                if (!nave.iniciarReparacion()) {
+                    throw new IllegalStateException("No se pudo iniciar una reparacion permitida");
+                }
                 tecnico = new TecnicoExtravehicular(nave.getCentroX(), nave.getCentroY());
                 tiempoReparacion = 4f;
-                nave.setReparando(true);
                 mostrarMensaje("TECNICO FUERA: LA NAVE NO PUEDE MOVERSE NI DISPARAR");
             }
         }
@@ -423,8 +411,9 @@ public class PantallaJuego implements Screen {
             tecnico.actualizar(delta, nave.getCentroX(), nave.getCentroY());
             tiempoReparacion = Math.max(0f, tiempoReparacion - delta);
             if (tiempoReparacion == 0f) {
-                nave.reparar();
-                nave.setReparando(false);
+                if (!nave.completarReparacion()) {
+                    throw new IllegalStateException("No se pudo completar la reparacion iniciada");
+                }
                 tecnico = null;
                 mostrarMensaje("REPARACION COMPLETA: +1 VIDA");
             }

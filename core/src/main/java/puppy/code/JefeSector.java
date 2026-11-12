@@ -19,16 +19,9 @@ public class JefeSector extends Enemigo {
         }
         this.sector = sector;
         this.texturaProyectil = texturaProyectil;
-        if (sector == SectorGalactico.NEBULOSA_DE_ION) {
-            ataque = new AtaqueAbanico();
-            setColor(0.7f, 0.48f, 1f, 1f);
-        } else if (sector == SectorGalactico.FRONTERA_DE_KHEPRI) {
-            ataque = new AtaqueCircular();
-            setColor(1f, 0.47f, 0.28f, 1f);
-        } else {
-            ataque = new AtaqueDirigido();
-            setColor(0.95f, 0.78f, 0.35f, 1f);
-        }
+        ataque = sector.crearAtaqueJefe();
+        setColor(sector.getColorJefeRojo(), sector.getColorJefeVerde(),
+                sector.getColorJefeAzul(), 1f);
         tiempoAtaque = ataque.getIntervalo();
     }
 
@@ -55,5 +48,15 @@ public class JefeSector extends Enemigo {
 
     public String getNombre() {
         return "GUARDIAN DE " + sector.getNombre().toUpperCase();
+    }
+
+    @Override
+    public int getPuntosDerrota() {
+        return 250;
+    }
+
+    @Override
+    public void registrarDerrota(ProgresionMejoras progresion) {
+        progresion.registrarJefeDerrotado();
     }
 }

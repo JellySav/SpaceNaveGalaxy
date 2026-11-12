@@ -33,4 +33,19 @@ public class AlienEnemigo extends Enemigo {
             tiempoDireccion = 0.7f;
         }
     }
+
+    @Override
+    public int getPuntosDerrota() {
+        return 25;
+    }
+
+    @Override
+    public float getProbabilidadBateria() {
+        return 0.55f;
+    }
+
+    @Override
+    public void registrarDerrota(ProgresionMejoras progresion) {
+        progresion.registrarAlienDerrotado();
+    }
 }

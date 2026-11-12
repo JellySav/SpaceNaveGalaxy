@@ -10,9 +10,9 @@ import java.util.Set;
 
 import com.badlogic.gdx.math.Rectangle;
 
-final class IndiceEspacial {
+final class IndiceEspacial<T extends ObjetivoDisparo> {
     private final float tamanoCelda;
-    private final Map<Long, List<ObjetivoDisparo>> celdas = new HashMap<>();
+    private final Map<Long, List<T>> celdas = new HashMap<>();
 
     IndiceEspacial(float tamanoCelda) {
         if (!Float.isFinite(tamanoCelda) || tamanoCelda <= 0f) {
@@ -21,9 +21,9 @@ final class IndiceEspacial {
         this.tamanoCelda = tamanoCelda;
     }
 
-    void reconstruir(Iterable<? extends ObjetivoDisparo> objetivos) {
+    void reconstruir(Iterable<? extends T> objetivos) {
         celdas.clear();
-        for (ObjetivoDisparo objetivo : objetivos) {
+        for (T objetivo : objetivos) {
             if (objetivo == null || !objetivo.estaActivo()) {
                 continue;
             }
@@ -40,20 +40,20 @@ final class IndiceEspacial {
         }
     }
 
-    List<ObjetivoDisparo> consultar(Rectangle area) {
-        Set<ObjetivoDisparo> vistos = Collections.newSetFromMap(new IdentityHashMap<>());
-        List<ObjetivoDisparo> colisiones = new ArrayList<>();
+    List<T> consultar(Rectangle area) {
+        Set<T> vistos = Collections.newSetFromMap(new IdentityHashMap<>());
+        List<T> colisiones = new ArrayList<>();
         int celdaMinX = celda(area.x);
         int celdaMaxX = celda(area.x + area.width);
         int celdaMinY = celda(area.y);
         int celdaMaxY = celda(area.y + area.height);
         for (int x = celdaMinX; x <= celdaMaxX; x++) {
             for (int y = celdaMinY; y <= celdaMaxY; y++) {
-                List<ObjetivoDisparo> candidatos = celdas.get(clave(x, y));
+                List<T> candidatos = celdas.get(clave(x, y));
                 if (candidatos == null) {
                     continue;
                 }
-                for (ObjetivoDisparo candidato : candidatos) {
+                for (T candidato : candidatos) {
                     if (vistos.add(candidato) && candidato.estaActivo()
                             && candidato.getArea().overlaps(area)) {
                         colisiones.add(candidato);

@@ -89,6 +89,12 @@ public class JuegoCoreTest {
         assertTrue(SectorGalactico.CINTURON_DE_VELA.esRondaDeJefe(2));
         assertTrue(SectorGalactico.NEBULOSA_DE_ION.esRondaDeJefe(4));
         assertTrue(SectorGalactico.FRONTERA_DE_KHEPRI.esRondaDeJefe(5));
+        assertEquals(1.8f,
+                SectorGalactico.CINTURON_DE_VELA.crearAtaqueJefe().getIntervalo(), 0.001f);
+        assertEquals(2.2f,
+                SectorGalactico.NEBULOSA_DE_ION.crearAtaqueJefe().getIntervalo(), 0.001f);
+        assertEquals(2.8f,
+                SectorGalactico.FRONTERA_DE_KHEPRI.crearAtaqueJefe().getIntervalo(), 0.001f);
         assertEquals(SectorGalactico.NEBULOSA_DE_ION, SectorGalactico.desdeRonda(4));
         assertEquals(SectorGalactico.FRONTERA_DE_KHEPRI, SectorGalactico.desdeRonda(5));
     }
@@ -112,10 +118,10 @@ public class JuegoCoreTest {
         ObjetivoFalso lejano = new ObjetivoFalso(new Rectangle(500f, 500f, 16f, 16f));
         ObjetivoFalso inactivo = new ObjetivoFalso(new Rectangle(22f, 22f, 8f, 8f));
         inactivo.activo = false;
-        IndiceEspacial indice = new IndiceEspacial(64f);
+        IndiceEspacial<ObjetivoFalso> indice = new IndiceEspacial<>(64f);
         indice.reconstruir(Arrays.asList(cercano, lejano, inactivo));
 
-        List<ObjetivoDisparo> colisiones = indice.consultar(new Rectangle(25f, 25f, 8f, 8f));
+        List<ObjetivoFalso> colisiones = indice.consultar(new Rectangle(25f, 25f, 8f, 8f));
         assertEquals(1, colisiones.size());
         assertTrue(colisiones.contains(cercano));
     }
