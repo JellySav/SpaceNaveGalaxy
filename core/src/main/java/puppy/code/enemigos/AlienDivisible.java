@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.ThreadLocalRandom;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 
@@ -22,7 +23,9 @@ public final class AlienDivisible extends AlienEnemigo {
     private float lado;
     private float impulsoRestante;
     private boolean dividida;
-    private TextureRegion aparienciaFragmento;
+    private TextureRegion aparienciaNormal;
+    private TextureRegion[] aparienciasFragmentos=new TextureRegion[0];
+    private boolean aparienciaFragmentoElegida;
 
     public AlienDivisible(float x, float y, float velocidadVerde, Texture textura) {
         this(x, y, velocidadVerde, textura, false, 0f);
@@ -41,9 +44,21 @@ public final class AlienDivisible extends AlienEnemigo {
         setColor(fragmento ? 0.85f : 0.7f, 0.24f, 1f, 1f);
     }
 
-    public void usarApariencias(TextureRegion normal,TextureRegion fragmentos) {
-        aparienciaFragmento=fragmentos;
-        usarApariencia(fragmento?fragmentos:normal);
+    public void usarApariencias(TextureRegion normal,TextureRegion... fragmentos) {
+        if(normal==null || fragmentos==null || fragmentos.length==0) {
+            throw new IllegalArgumentException("La apariencia normal y al menos un diseno de fragmento son obligatorios");
+        }
+        aparienciaNormal=normal;
+        aparienciasFragmentos=fragmentos.clone();
+        if(fragmento) {
+            if(!aparienciaFragmentoElegida) {
+                int indice=ThreadLocalRandom.current().nextInt(aparienciasFragmentos.length);
+                usarApariencia(aparienciasFragmentos[indice]);
+                aparienciaFragmentoElegida=true;
+            }
+        } else {
+            usarApariencia(normal);
+        }
     }
 
     public static int cantidadEnRonda(int ronda) {
@@ -78,7 +93,7 @@ public final class AlienDivisible extends AlienEnemigo {
                         velocidadVerde, textura, true, 1f));
         for(AlienDivisible hijo:fragmentos) {
             hijo.configurarVidaParaRonda(getRondaDeVida());
-            if(aparienciaFragmento!=null)hijo.usarApariencias(aparienciaFragmento,aparienciaFragmento);
+            if(aparienciaNormal!=null)hijo.usarApariencias(aparienciaNormal,aparienciasFragmentos);
         }
         return fragmentos;
     }

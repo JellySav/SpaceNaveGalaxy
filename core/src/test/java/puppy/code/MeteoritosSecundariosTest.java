@@ -69,6 +69,22 @@ public class MeteoritosSecundariosTest extends EntornoGdxPrueba {
     }
 
     @Test
+    public void tamanoDeMeteoritosAumentaConLaDificultadDeCadaSector() {
+        float tamanoSectorInicial = tamanoMeteoritoEnRonda(1);
+        float tamanoSegundoSector = tamanoMeteoritoEnRonda(5);
+        float tamanoTercerSector = tamanoMeteoritoEnRonda(9);
+
+        assertEquals(tamanoSectorInicial * 1.12f, tamanoSegundoSector, 0.001f);
+        assertEquals(tamanoSectorInicial * 1.25f, tamanoTercerSector, 0.001f);
+    }
+
+    private float tamanoMeteoritoEnRonda(int ronda) {
+        List<Enemigo> enemigos = new ArrayList<>();
+        new LluviaMeteoritos(ronda, false, new Random(23)).actualizar(1.5f, enemigos, textura);
+        return enemigos.get(0).getArea().width;
+    }
+
+    @Test
     public void contraJefesHayMenosTraficoYSeRecuperaEspacioTrasUnaBaja() {
         LluviaMeteoritos lluvia = new LluviaMeteoritos(4, true, new Random(1));
         List<Enemigo> enemigos = new ArrayList<>();

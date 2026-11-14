@@ -43,7 +43,9 @@ public class PantallaJuego implements Screen {
     private final AparienciasEnemigas aparienciasEnemigas;
     private final AparienciasNave aparienciasNave;
     private final AparienciasProyectiles aparienciasProyectiles;
+    private final Texture asteroidSmallTexture;
     private final Texture asteroidTexture;
+    private final Texture asteroidLargeTexture;
     private final Texture bulletTexture;
     private final Texture texturaProyectilHostil;
     private final TextureRegion regionProyectilHostil;
@@ -129,7 +131,9 @@ public class PantallaJuego implements Screen {
                 :new TextureRegion(texturaProyectilHostil);
         imagenRayo.dispose();
         texturaCritica = crearTexturaCritica();
+        asteroidSmallTexture = new Texture(Gdx.files.internal("aGreySmall.png"));
         asteroidTexture = new Texture(Gdx.files.internal("aGreyMedium4.png"));
+        asteroidLargeTexture = new Texture(Gdx.files.internal("aGreyLarge.png"));
         naveHitSound = Gdx.audio.newSound(Gdx.files.internal("hurt.ogg"));
         bulletSound = Gdx.audio.newSound(Gdx.files.internal("pop-sound.mp3"));
         sonidoReparacion = Gdx.audio.newSound(Gdx.files.internal("reparacion.wav"));
@@ -294,10 +298,11 @@ public class PantallaJuego implements Screen {
         gestionarReparacion(frameDelta);
         nave.actualizar(this, frameDelta);
         llegadaNaves.actualizar(frameDelta, enemigos, naveTexture);
-        for(Enemigo enemigo:enemigos)aparienciasEnemigas.aplicar(enemigo);
+        for(Enemigo enemigo:enemigos)aparienciasEnemigas.aplicar(enemigo,sector);
         actualizarEnemigos(frameDelta);
         actualizarDanoDash();
-        lluviaMeteoritos.actualizar(frameDelta, enemigos, asteroidTexture,nave.getArea());
+        lluviaMeteoritos.actualizar(frameDelta,enemigos,asteroidSmallTexture,asteroidTexture,
+                asteroidLargeTexture,nave.getArea());
         explosiones.actualizar(frameDelta, enemigos, nave, apoyosCombinados(), this::resolverDerrota,
                 () -> explosionSound.play(game.getPreferencias().getVolumenEfectos()),bulletTexture,this::agregarProyectilHostil);
         if (jefeSector != null && jefeSector.estaActivo()) {
@@ -774,7 +779,7 @@ public class PantallaJuego implements Screen {
     }
 
     private void agregarRefuerzo(AlienEnemigo refuerzo) {
-        aparienciasEnemigas.aplicar(refuerzo);
+        aparienciasEnemigas.aplicar(refuerzo,sector);
         enemigos.add(refuerzo);
         colisionesNaves.resolver(enemigos, MundoJuego.ANCHO, MundoJuego.ALTO);
     }
@@ -823,7 +828,9 @@ public class PantallaJuego implements Screen {
         aparienciasEnemigas.dispose();
         aparienciasNave.dispose();
         aparienciasProyectiles.dispose();
+        asteroidSmallTexture.dispose();
         asteroidTexture.dispose();
+        asteroidLargeTexture.dispose();
         bulletTexture.dispose();
         texturaProyectilHostil.dispose();
         texturaCritica.dispose();

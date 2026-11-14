@@ -11,21 +11,26 @@ import com.badlogic.gdx.math.Rectangle;
 public final class LluviaMeteoritos {
     private final Random random;
     private final int ronda;
+    private final SectorGalactico sector;
     private final float intervalo;
     private final int maximoPresentes;
     private float espera = 1.5f;
 
     public LluviaMeteoritos(int ronda, boolean hayJefe, Random random) {
         this.ronda = ronda;
+        this.sector = SectorGalactico.desdeRonda(ronda);
         this.random = random;
         intervalo = hayJefe ? 5f : 3.5f;
         maximoPresentes = hayJefe ? 3 : 4;
     }
-
     public void actualizar(float delta, List<Enemigo> enemigos, Texture textura) {
-        actualizar(delta,enemigos,textura,null);
+        actualizar(delta,enemigos,textura,textura,textura,null);
     }
     public void actualizar(float delta,List<Enemigo> enemigos,Texture textura,Rectangle jugador) {
+        actualizar(delta,enemigos,textura,textura,textura,jugador);
+    }
+    public void actualizar(float delta,List<Enemigo> enemigos,Texture texturaPequena,
+                           Texture texturaMediana,Texture texturaGrande,Rectangle jugador) {
         if (delta <= 0f) return;
         espera -= delta;
         if (espera > 0f) return;
@@ -35,7 +40,8 @@ public final class LluviaMeteoritos {
             if (enemigo.esMeteorito() && enemigo.estaActivo()) presentes++;
         }
         if (presentes < maximoPresentes) {
-            AsteroideEnemigo meteorito=crearMeteorito(textura,jugador);
+            AsteroideEnemigo meteorito=crearMeteorito(
+                    texturaPequena,texturaMediana,texturaGrande,jugador);
             if(meteorito!=null)enemigos.add(meteorito);
         }
     }
@@ -51,8 +57,22 @@ public final class LluviaMeteoritos {
         return cantidad==0?-1:permitidos[random.nextInt(cantidad)];
     }
 
-    private AsteroideEnemigo crearMeteorito(Texture textura,Rectangle jugador) {
-        float tamano = 40f + random.nextFloat() * 18f;
+    private AsteroideEnemigo crearMeteorito(Texture texturaPequena,Texture texturaMediana,
+                                             Texture texturaGrande,Rectangle jugador) {
+        float tipo=random.nextFloat();
+        Texture textura;
+        float tamanoBase;
+        if(tipo<0.25f) {
+            textura=texturaPequena;
+            tamanoBase=32f+random.nextFloat()*10f;
+        } else if(tipo<0.75f) {
+            textura=texturaMediana;
+            tamanoBase=40f+random.nextFloat()*12f;
+        } else {
+            textura=texturaGrande;
+            tamanoBase=52f+random.nextFloat()*16f;
+        }
+        float tamano=tamanoBase*sector.getFactorDificultad();
         float x;
         float y;
         float destinoX;

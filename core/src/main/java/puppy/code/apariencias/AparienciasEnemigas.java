@@ -11,7 +11,8 @@ import com.badlogic.gdx.utils.Disposable;
 
 /** Comparte las texturas de una ronda y conserva los PNG originales sin modificarlos. */
 public final class AparienciasEnemigas implements Disposable {
-    private final TextureRegion artillero,divisible,fragmento,perseguidor,explosivo;
+    private final TextureRegion artillero,divisible,fragmento,solosis,presolosis;
+    private final TextureRegion perseguidor,perseguidorConPinchos,explosivo;
     private final TextureRegion primerJefe,segundoJefe,tercerJefe,detonadora;
     public AparienciasEnemigas() {
         detonadora=cargar("enemigo-abeja-detonadora.png",32);
@@ -23,6 +24,9 @@ public final class AparienciasEnemigas implements Disposable {
         artillero=cargar("artillero-platillo.png");
         divisible=cargarRegion("enemigo-celula-mecanica.png",308,51,786,611);
         fragmento=cargarRegion("enemigo-celula-mecanica.png",260,728,388,334);
+        solosis=cargar("solosis.png");
+        presolosis=cargar("presolosis.png");
+        perseguidorConPinchos=cargar("enemigo-verde-pinchos.png");
     }
     /** Regiones independientes de la misma hoja: madre arriba y una hija abajo. */
     private TextureRegion cargarRegion(String nombre,int x,int y,int ancho,int alto) {
@@ -45,7 +49,7 @@ public final class AparienciasEnemigas implements Disposable {
             return new TextureRegion(textura,minX,minY,maxX-minX+1,maxY-minY+1);
         } finally {imagen.dispose();}
     }
-    public void aplicar(Enemigo enemigo) {
+    public void aplicar(Enemigo enemigo,SectorGalactico sectorActual) {
         if(enemigo instanceof JefeSector) {
             SectorGalactico sector=((JefeSector)enemigo).getSector();
             if(sector==SectorGalactico.CINTURON_DE_VELA) {
@@ -57,11 +61,16 @@ public final class AparienciasEnemigas implements Disposable {
                 enemigo.usarApariencia(tercerJefe,220f);
             }
         }
-        else if(enemigo.getClass()==AlienEnemigo.class)enemigo.usarApariencia(perseguidor,48f);
+        else if(enemigo.getClass()==AlienEnemigo.class) {
+            TextureRegion region=sectorActual==SectorGalactico.FRONTERA_DE_KHEPRI
+                    ?perseguidorConPinchos:perseguidor;
+            enemigo.usarApariencia(region,48f);
+        }
         else if(enemigo.getClass()==AlienExplosivo.class)enemigo.usarApariencia(explosivo,54f);
         else if(enemigo instanceof AlienDetonadora)((AlienDetonadora)enemigo).usarAparienciaAbeja(detonadora);
         else if(enemigo instanceof AlienArtillero)enemigo.usarApariencia(artillero,56f);
-        else if(enemigo instanceof AlienDivisible)((AlienDivisible)enemigo).usarApariencias(divisible,fragmento);
+        else if(enemigo instanceof AlienDivisible)
+            ((AlienDivisible)enemigo).usarApariencias(divisible,fragmento,solosis,presolosis);
     }
     @Override public void dispose() {
         detonadora.getTexture().dispose();
@@ -73,5 +82,8 @@ public final class AparienciasEnemigas implements Disposable {
         artillero.getTexture().dispose();
         divisible.getTexture().dispose();
         fragmento.getTexture().dispose();
+        solosis.getTexture().dispose();
+        presolosis.getTexture().dispose();
+        perseguidorConPinchos.getTexture().dispose();
     }
 }

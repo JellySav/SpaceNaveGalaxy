@@ -11,7 +11,7 @@ Clona el repositorio y abre la carpeta raíz como proyecto Gradle en Apache
 NetBeans 21. IntelliJ IDEA también es compatible. NetBeans 21 puede ejecutarse
 con JDK 11, 17 o 21; para mantener todo el flujo en JDK 11, instálalo y
 configúralo como JVM de Gradle (y como JVM de NetBeans si así lo deseas). El
-proyecto usa Gradle 8.10.1 y compila para Java 11: JDK 8 no es compatible. Una
+proyecto usa Gradle 8.10.1 y compila para Java 11. Una
 versión anterior de NetBeans puede servir si ofrece soporte para proyectos
 Gradle y puede usar JDK 11; NetBeans 21 es la opción recomendada.
 
@@ -32,9 +32,7 @@ En Linux o macOS:
 ./gradlew :core:test
 ```
 
-El juego y las pruebas se validaron con OpenJDK 11; Oracle JDK 11 no se ha
-probado por separado. Ambos son distribuciones de Java 11 y el proyecto no
-depende de APIs exclusivas de OpenJDK. El empaquetamiento nativo
+El juego y las pruebas se validaron con OpenJDK 11. El empaquetamiento nativo
 multiplataforma por sistema operativo no puede generarse con la configuración
 actual usando solo JDK 11. Para crear una distribución portable de Java 11:
 
@@ -100,8 +98,11 @@ enemigos y recoger energía da puntos para subir de nivel y elegir mejoras
 aleatorias. Las baterías reparan la nave; la energía recarga el dash.
 
 Hay insectos verdes perseguidores, insectos rojos explosivos, células que se
-dividen, platillos que disparan al detenerse y abejas que explotan lanzando
-proyectiles. Los meteoritos cruzan la pantalla como recursos opcionales.
+dividen en fragmentos con diseños alternativos, platillos que disparan al
+detenerse y abejas que explotan lanzando proyectiles. Los meteoritos cruzan la
+pantalla como recursos opcionales: hay tres variantes y aumentan de tamaño al
+avanzar a sectores más peligrosos. En la Frontera de Khepri, los perseguidores
+verdes presentan una variante visual con pinchos.
 
 Los primeros jefes aparecen en las rondas 4, 8 y 12. El primero permanece en el
 centro, gira y alterna salvas con un láser anunciado. El segundo y el tercero
