@@ -11,10 +11,13 @@ import com.badlogic.gdx.utils.Disposable;
 
 /** Comparte las texturas de una ronda y conserva los PNG originales sin modificarlos. */
 public final class AparienciasEnemigas implements Disposable {
-    private final TextureRegion artillero,divisible,fragmento,perseguidor,explosivo,primerJefe,detonadora;
+    private final TextureRegion artillero,divisible,fragmento,perseguidor,explosivo;
+    private final TextureRegion primerJefe,segundoJefe,tercerJefe,detonadora;
     public AparienciasEnemigas() {
         detonadora=cargar("enemigo-abeja-detonadora.png",32);
         primerJefe=cargar("jefe-escarabajo-canon.png",32);
+        segundoJefe=cargar("jefe-insecto-seis-canones.png",32);
+        tercerJefe=cargar("jefe-polilla-robotica.png",32);
         explosivo=cargar("enemigo-rojo-insecto-robotico.png",32);
         perseguidor=cargar("enemigo-verde-insecto-robotico.png",32);
         artillero=cargar("artillero-platillo.png");
@@ -43,9 +46,16 @@ public final class AparienciasEnemigas implements Disposable {
         } finally {imagen.dispose();}
     }
     public void aplicar(Enemigo enemigo) {
-        if(enemigo instanceof JefeSector && ((JefeSector)enemigo).getSector()==SectorGalactico.CINTURON_DE_VELA) {
-            enemigo.usarApariencia(primerJefe,220f);
-            enemigo.usarPivoteApariencia(0.5f,0.32f);
+        if(enemigo instanceof JefeSector) {
+            SectorGalactico sector=((JefeSector)enemigo).getSector();
+            if(sector==SectorGalactico.CINTURON_DE_VELA) {
+                enemigo.usarApariencia(primerJefe,220f);
+                enemigo.usarPivoteApariencia(0.5f,0.32f);
+            } else if(sector==SectorGalactico.NEBULOSA_DE_ION) {
+                enemigo.usarApariencia(segundoJefe,220f);
+            } else if(sector==SectorGalactico.FRONTERA_DE_KHEPRI) {
+                enemigo.usarApariencia(tercerJefe,220f);
+            }
         }
         else if(enemigo.getClass()==AlienEnemigo.class)enemigo.usarApariencia(perseguidor,48f);
         else if(enemigo.getClass()==AlienExplosivo.class)enemigo.usarApariencia(explosivo,54f);
@@ -54,6 +64,14 @@ public final class AparienciasEnemigas implements Disposable {
         else if(enemigo instanceof AlienDivisible)((AlienDivisible)enemigo).usarApariencias(divisible,fragmento);
     }
     @Override public void dispose() {
-        detonadora.getTexture().dispose();primerJefe.getTexture().dispose();explosivo.getTexture().dispose();perseguidor.getTexture().dispose();artillero.getTexture().dispose();divisible.getTexture().dispose();fragmento.getTexture().dispose();
+        detonadora.getTexture().dispose();
+        primerJefe.getTexture().dispose();
+        segundoJefe.getTexture().dispose();
+        tercerJefe.getTexture().dispose();
+        explosivo.getTexture().dispose();
+        perseguidor.getTexture().dispose();
+        artillero.getTexture().dispose();
+        divisible.getTexture().dispose();
+        fragmento.getTexture().dispose();
     }
 }

@@ -6,6 +6,7 @@ import puppy.code.mejoras.*;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.ScreenAdapter;
+import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
@@ -27,8 +28,16 @@ public class PantallaGameOver extends ScreenAdapter {
     private final Rectangle botonMenu=new Rectangle(390f,210f,420f,64f);
     private final Vector3 puntero = new Vector3();
     private final ConfirmacionReinicio confirmacion = new ConfirmacionReinicio();
+    private final Sound sonidoGameOver;
 
-    public PantallaGameOver(SpaceNavigation game) { this.game = game; }
+    public PantallaGameOver(SpaceNavigation game) {
+        this.game = game;
+        sonidoGameOver=Gdx.audio.newSound(Gdx.files.internal("game-over.wav"));
+    }
+
+    @Override public void show() {
+        sonidoGameOver.play(game.getPreferencias().getVolumenEfectos());
+    }
 
     @Override
     public void render(float delta) {
@@ -73,7 +82,10 @@ public class PantallaGameOver extends ScreenAdapter {
     }
 
     @Override public void resize(int width, int height) { viewport.update(width, height, true); }
-    @Override public void dispose() { formas.dispose(); }
+    @Override public void dispose() {
+        formas.dispose();
+        sonidoGameOver.dispose();
+    }
 
     /** Exige esperar y soltar la confirmacion antes de aceptar una pulsacion nueva. */
     public static final class ConfirmacionReinicio {

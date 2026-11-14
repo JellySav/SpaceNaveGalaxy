@@ -6,6 +6,7 @@ import puppy.code.mejoras.*;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Screen;
+import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
@@ -39,6 +40,7 @@ public class PantallaMenu implements Screen {
     private final ShapeRenderer shapeRenderer;
     private final Texture shipTexture;
     private final Texture asteroidTexture;
+    private final Music menuMusic;
     private final Rectangle playButton = new Rectangle();
     private final Rectangle controlsButton = new Rectangle();
     private final Rectangle backButton = new Rectangle();
@@ -94,6 +96,9 @@ public class PantallaMenu implements Screen {
         shapeRenderer = new ShapeRenderer();
         shipTexture = new Texture(Gdx.files.internal("MainShip3.png"));
         asteroidTexture = new Texture(Gdx.files.internal("aGreyMedium4.png"));
+        menuMusic = Gdx.audio.newMusic(Gdx.files.internal("piano-loops.wav"));
+        menuMusic.setLooping(true);
+        menuMusic.setVolume(game.getPreferencias().getVolumenMusica());
     }
 
     @Override
@@ -331,6 +336,7 @@ public class PantallaMenu implements Screen {
 
     @Override
     public void show() {
+        menuMusic.play();
     }
 
     @Override
@@ -349,6 +355,7 @@ public class PantallaMenu implements Screen {
 
     @Override
     public void hide() {
+        menuMusic.pause();
     }
 
     @Override
@@ -356,5 +363,6 @@ public class PantallaMenu implements Screen {
         shapeRenderer.dispose();
         shipTexture.dispose();
         asteroidTexture.dispose();
+        menuMusic.dispose();
     }
 }

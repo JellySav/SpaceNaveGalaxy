@@ -7,10 +7,18 @@ consigue puntos y elige mejoras durante cada partida.
 
 ## Abrir y ejecutar
 
-Clona el repositorio y abre su carpeta raíz en IntelliJ IDEA como proyecto Gradle.
-El proyecto usa Gradle 8.10.1, que puede ejecutarse con JDK 11, y compila el código
-para Java 11. No es necesario instalar una versión de JDK superior. Desde la
-carpeta del proyecto, en Windows:
+Clona el repositorio y abre la carpeta raíz como proyecto Gradle en Apache
+NetBeans 21. IntelliJ IDEA también es compatible. NetBeans 21 puede ejecutarse
+con JDK 11, 17 o 21; para mantener todo el flujo en JDK 11, instálalo y
+configúralo como JVM de Gradle (y como JVM de NetBeans si así lo deseas). El
+proyecto usa Gradle 8.10.1 y compila para Java 11: JDK 8 no es compatible. Una
+versión anterior de NetBeans puede servir si ofrece soporte para proyectos
+Gradle y puede usar JDK 11; NetBeans 21 es la opción recomendada.
+
+En NetBeans, abre la vista **Gradle**, despliega las tareas de `lwjgl3` y ejecuta
+`run` para iniciar el juego. También puedes ejecutar `test` bajo `core` o
+`distZip` bajo `lwjgl3`. Si la vista no aparece o no se sincroniza, abre la
+terminal integrada en la raíz y ejecuta el wrapper incluido. En Windows:
 
 ```powershell
 .\gradlew.bat lwjgl3:run
@@ -24,7 +32,9 @@ En Linux o macOS:
 ./gradlew :core:test
 ```
 
-El juego y las pruebas funcionan con JDK 11. El empaquetamiento nativo
+El juego y las pruebas se validaron con OpenJDK 11; Oracle JDK 11 no se ha
+probado por separado. Ambos son distribuciones de Java 11 y el proyecto no
+depende de APIs exclusivas de OpenJDK. El empaquetamiento nativo
 multiplataforma por sistema operativo no puede generarse con la configuración
 actual usando solo JDK 11. Para crear una distribución portable de Java 11:
 

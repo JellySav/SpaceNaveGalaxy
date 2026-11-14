@@ -8,6 +8,7 @@ import java.util.Random;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.ScreenAdapter;
+import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
@@ -29,6 +30,7 @@ public final class PantallaMejoras extends ScreenAdapter {
     private final OrthographicCamera camera=new OrthographicCamera();
     private final FitViewport viewport=new FitViewport(MundoJuego.ANCHO,MundoJuego.ALTO,camera);
     private final ShapeRenderer formas=new ShapeRenderer();
+    private final Sound sonidoSubirNivel;
     private List<TipoMejora> opciones;
     private boolean inicial;
     private final Rectangle[] tarjetas={new Rectangle(130f,155f,300f,385f),
@@ -40,8 +42,12 @@ public final class PantallaMejoras extends ScreenAdapter {
     }
     public PantallaMejoras(SpaceNavigation game,PantallaJuego juego,boolean inicial) {
         this.game=game;this.juego=juego;this.inicial=inicial;
+        sonidoSubirNivel=inicial?null:Gdx.audio.newSound(Gdx.files.internal("subir-nivel.wav"));
         opciones=inicial?CatalogoMejoras.iniciales():CatalogoMejoras.sortear(progreso,random);
         viewport.update(Gdx.graphics.getWidth(),Gdx.graphics.getHeight(),true);
+    }
+    @Override public void show() {
+        if(sonidoSubirNivel!=null)sonidoSubirNivel.play(game.getPreferencias().getVolumenEfectos());
     }
     @Override public void render(float delta) {
         puntero.set(Gdx.input.getX(),Gdx.input.getY(),0f);viewport.unproject(puntero);
@@ -102,5 +108,8 @@ public final class PantallaMejoras extends ScreenAdapter {
         font.draw(batch,layout,x,y);
     }
     @Override public void resize(int width,int height){viewport.update(width,height,true);}
-    @Override public void dispose(){formas.dispose();}
+    @Override public void dispose(){
+        formas.dispose();
+        if(sonidoSubirNivel!=null)sonidoSubirNivel.dispose();
+    }
 }

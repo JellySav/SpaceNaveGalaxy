@@ -50,6 +50,9 @@ public class PantallaJuego implements Screen {
     private final Texture texturaCritica;
     private final Sound naveHitSound;
     private final Sound bulletSound;
+    private final Sound sonidoReparacion;
+    private final Sound sonidoReparacionRapida;
+    private final Sound sonidoLaser;
     private final List<Enemigo> enemigos = new ArrayList<>();
     private final SistemaExplosiones explosiones = new SistemaExplosiones();
     private final ColisionesNaves colisionesNaves = new ColisionesNaves();
@@ -104,7 +107,9 @@ public class PantallaJuego implements Screen {
         viewport = new FitViewport(MundoJuego.ANCHO, MundoJuego.ALTO, camera);
         viewport.apply();
         explosionSound = Gdx.audio.newSound(Gdx.files.internal("explosion.ogg"));
-        gameMusic = Gdx.audio.newMusic(Gdx.files.internal("piano-loops.wav"));
+        String archivoMusica=sector.esRondaDeJefe(ronda)
+                ?"musica-jefes-absolute-zero.ogg":"musica-etapas-space-age.ogg";
+        gameMusic = Gdx.audio.newMusic(Gdx.files.internal(archivoMusica));
         gameMusic.setLooping(true);
         gameMusic.setVolume(game.getPreferencias().getVolumenMusica());
 
@@ -127,6 +132,9 @@ public class PantallaJuego implements Screen {
         asteroidTexture = new Texture(Gdx.files.internal("aGreyMedium4.png"));
         naveHitSound = Gdx.audio.newSound(Gdx.files.internal("hurt.ogg"));
         bulletSound = Gdx.audio.newSound(Gdx.files.internal("pop-sound.mp3"));
+        sonidoReparacion = Gdx.audio.newSound(Gdx.files.internal("reparacion.wav"));
+        sonidoReparacionRapida = Gdx.audio.newSound(Gdx.files.internal("reparacion-rapida.wav"));
+        sonidoLaser = Gdx.audio.newSound(Gdx.files.internal("disparo-laser.wav"));
 
         crearCampoEstelar(MundoJuego.ANCHO, MundoJuego.ALTO);
         nave = new Nave4((int) (MundoJuego.ANCHO / 2f - 22f), 30, naveTexture,
@@ -432,7 +440,9 @@ public class PantallaJuego implements Screen {
         if(apoyo==null)return;
         apoyo.orientarDetras(nave.getDireccionFrenteX(),nave.getDireccionFrenteY());
         apoyo.actualizar(delta,nave.getCentroX(),nave.getCentroY(),enemigos,bulletTexture,this::agregarBala);
-        rayosLaser.addAll(apoyo.extraerRayos());
+        List<RayoLaser> rayos=apoyo.extraerRayos();
+        if(!rayos.isEmpty())sonidoLaser.play(game.getPreferencias().getVolumenEfectos());
+        rayosLaser.addAll(rayos);
     }
 
     private void actualizarBalas(float delta) {
@@ -694,8 +704,9 @@ public class PantallaJuego implements Screen {
                     throw new IllegalStateException("No se pudo iniciar una reparacion permitida");
                 }
                 tecnico = new TecnicoExtravehicular(nave.getCentroX(), nave.getCentroY());
-                tiempoReparacion = 4f;
                 tiempoReparacion = progresion.getDuracionReparacion();
+                Sound sonido=tiempoReparacion<3f?sonidoReparacionRapida:sonidoReparacion;
+                if(sonido!=null)sonido.play(PreferenciasJuego.obtenerInstancia().getVolumenEfectos());
                 mostrarMensaje("TECNICO FUERA: LA NAVE NO PUEDE MOVERSE NI DISPARAR");
             }
         }
@@ -818,5 +829,8 @@ public class PantallaJuego implements Screen {
         texturaCritica.dispose();
         naveHitSound.dispose();
         bulletSound.dispose();
+        sonidoReparacion.dispose();
+        sonidoReparacionRapida.dispose();
+        sonidoLaser.dispose();
     }
 }
